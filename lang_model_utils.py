@@ -184,49 +184,50 @@ def train_lang_model(model_path: int,
 
     Also saves best model weights in file `langmodel_best.torch`
     """
-    mpath = Path(model_path)
-    mpath.mkdir(exist_ok=True)
-
-    # create data loaders
-    trn_dl = LanguageModelLoader(trn_indexed, bs, bptt)
-    val_dl = LanguageModelLoader(val_indexed, bs, bptt)
-
-    # create lang model data
-    md = LanguageModelData(mpath, 1, vocab_size, trn_dl, val_dl, bs=bs, bptt=bptt)
-
-    # build learner
-    opt_fn = partial(optim.Adam, betas=(0.8, 0.99))
-    drops = np.array([0.25, 0.1, 0.2, 0.02, 0.15]) * 0.7
-
-    learner = md.get_model(opt_fn, em_sz, nh, nl,
-                           dropouti=drops[0],
-                           dropout=drops[1],
-                           wdrop=drops[2],
-                           dropoute=drops[3],
-                           dropouth=drops[4])
-
-    # borrowed these parameters from fastai
-    learner.fit(lr,
-                n_cycle=n_cycle,
-                wds=wd,
-                cycle_len=cycle_len,
-                use_clr=(32, 10),
-                cycle_mult=cycle_mult,
-                best_save_name='langmodel_best')
-
-    # eval sets model to inference mode (turns off dropout, etc.)
-    model = learner.model.eval()
-    # defensively calling reset to clear model state (b/c its a stateful model)
-    model.reset()
-
-    state_dict_dest = mpath/'models/langmodel_best.h5'
-    logging.warning(f'State dict for the best model saved here:\n{str(state_dict_dest)}')
+    model = None
+    # mpath = Path(model_path)
+    # mpath.mkdir(exist_ok=True)
+    #
+    # # create data loaders
+    # trn_dl = LanguageModelLoader(trn_indexed, bs, bptt)
+    # val_dl = LanguageModelLoader(val_indexed, bs, bptt)
+    #
+    # # create lang model data
+    # md = LanguageModelData(mpath, 1, vocab_size, trn_dl, val_dl, bs=bs, bptt=bptt)
+    #
+    # # build learner
+    # opt_fn = partial(optim.Adam, betas=(0.8, 0.99))
+    # drops = np.array([0.25, 0.1, 0.2, 0.02, 0.15]) * 0.7
+    #
+    # learner = md.get_model(opt_fn, em_sz, nh, nl,
+    #                        dropouti=drops[0],
+    #                        dropout=drops[1],
+    #                        wdrop=drops[2],
+    #                        dropoute=drops[3],
+    #                        dropouth=drops[4])
+    #
+    # # borrowed these parameters from fastai
+    # learner.fit(lr,
+    #             n_cycle=n_cycle,
+    #             wds=wd,
+    #             cycle_len=cycle_len,
+    #             use_clr=(32, 10),
+    #             cycle_mult=cycle_mult,
+    #             best_save_name='langmodel_best')
+    #
+    # # eval sets model to inference mode (turns off dropout, etc.)
+    # model = learner.model.eval()
+    # # defensively calling reset to clear model state (b/c its a stateful model)
+    # model.reset()
+    #
+    # state_dict_dest = mpath/'models/langmodel_best.h5'
+    # logging.warning(f'State dict for the best model saved here:\n{str(state_dict_dest)}')
     return learner, model
 
 
 def list2arr(l):
     "Convert list into pytorch Variable."
-    return V(np.expand_dims(np.array(l), -1)).cpu()
+    return Variable(np.expand_dims(np.array(l), -1)).cpu()
 
 
 def make_prediction_from_list(model, l):
@@ -249,7 +250,7 @@ def make_prediction_from_list(model, l):
     return hidden_states.mean(0), hidden_states.max(0)[0], hidden_states[-1]
 
 
-def get_embeddings(lm_model, list_list_int):
+def get_embeddings(lm_model, list_list_int, path):
     """
     Vectorize a list of sequences List[List[int]] using a fast.ai language model.
 
