@@ -51,8 +51,8 @@ class postgressql:
                     paragraph_id SERIAL PRIMARY KEY,
                     file_id INTEGER NOT NULL,
                     paragraph TEXT NOT NULL,
-                    automatic_tag VARCHAR(255) NULL,
-                    manual_tag VARCHAR(255) NULL           
+                    automatic_tag TEXT NULL,
+                    manual_tag TEXT NULL           
                     
             )
             """)
@@ -160,6 +160,35 @@ class postgressql:
                 conn.close()
         return updated_rows
 
+    def update_autotag(self, paragraph_id, automatic_tag=None):
+        """ update vendor name based on the vendor id """
+        sql = """ UPDATE paragraphs
+                    SET automatic_tag = %s                    
+                    WHERE paragraph_id = %s"""
+        conn = None
+        updated_rows = 0
+        try:
+            # read database configuration
+            params = config()
+            # connect to the PostgreSQL database
+            conn = psycopg2.connect(**params)
+            # create a new cursor
+            cur = conn.cursor()
+            # execute the UPDATE  statement
+            cur.execute(sql, (automatic_tag, paragraph_id))
+            # get the number of updated rows
+            updated_rows = cur.rowcount
+            # Commit the changes to the database
+            conn.commit()
+            # Close communication with the PostgreSQL database
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+        return updated_rows
+
     def get_fileinfo(self, directory_path, file_name ):
         """ query data from the vendors table """
         conn = None
@@ -183,6 +212,8 @@ class postgressql:
         """ query parts from the parts table """
         conn = None
         paras = None
+        paraids = None
+        manualtags = None
         dirs = []
         files = []
         fileids = []
@@ -194,6 +225,12 @@ class postgressql:
             cur.execute("SELECT paragraph FROM paragraphs ORDER BY paragraph_id")
             paras = cur.fetchall()
             print("The number of paragraphs: ", cur.rowcount)
+            cur.execute("SELECT paragraph_id FROM paragraphs ORDER BY paragraph_id")
+            paraids = cur.fetchall()
+            print("The number of paragraph ids: ", cur.rowcount)
+            cur.execute("SELECT manual_tag FROM paragraphs ORDER BY paragraph_id")
+            manualtags = cur.fetchall()
+            print("The number of manualtags: ", cur.rowcount)
             cur.execute("SELECT file_id FROM paragraphs ORDER BY paragraph_id")
             rows = cur.fetchall()
             print("The number of filepaths: ", cur.rowcount)
@@ -208,7 +245,7 @@ class postgressql:
         finally:
             if conn is not None:
                 conn.close()
-        return paras, filepaths
+        return paras, filepaths, paraids, manualtags
 
     def delete_file(self, file_id):
         """ delete part by part id """

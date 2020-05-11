@@ -84,17 +84,23 @@ def setenv(uuid):
             print("file_id = ", file_id)
         # updated_rows = postgres.update_paragraph('1', "r u ok", "fine")
         # print("updated_rows = ", updated_rows)
-        paras, filepaths = postgres.get_paragraphs()
+        paras, filepaths, paraids, manualtags = postgres.get_paragraphs()
         with open(data_path/'without_docstrings.function', 'w', encoding='utf-8') as f:
             for item in paragraphs:
                 f.write("%s" % item)
+        with open(data_path/'without_docstrings.paraids', 'w', encoding='utf-8') as f:
+            for item in paraids:
+                f.write("%s\n" % item)
         with open(data_path/'without_docstrings.lineage', 'w', encoding='utf-8') as f:
             for item in filepaths:
+                f.write("%s\n" % item)
+        with open(data_path/'without_docstrings.manualtags', 'w', encoding='utf-8') as f:
+            for item in manualtags:
                 f.write("%s\n" % item)
         # print("number of paras = ", len(paras))
         # print("number of filepaths = ", len(filepaths))
         search.create_vector()
-        search.create_autotag()
+        search.create_autotag(postgres)
         search.create_refdf()
         search.create_searchindex()
         q2emb = search.search_engine()
@@ -113,5 +119,6 @@ if __name__ == "__main__":
     search = semantic()
     postgres = postgressql()
     # postgres.connect()
+    #execute DROP TABLE paragraphs; from sql shell if schema is changed
     postgres.create_tables()
     app.run(debug=True)

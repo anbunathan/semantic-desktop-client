@@ -3,7 +3,7 @@ from keras.models import load_model
 from pathlib import Path
 import numpy as np
 from sqlalchemy import JSON
-
+from postgreshandler import *
 from seq2seq_utils import load_text_processor
 from ktext.preprocess import processor
 import torch
@@ -40,7 +40,7 @@ class semantic:
         np.save(self.code2emb_path/'nodoc_vecs.npy', nodoc_vecs)
         print("Vector is created")
 
-    def create_autotag(self):
+    def create_autotag(self, postgres):
         seq2seq_Model = load_model(str(self.seq2seq_path / 'code_summary_seq2seq_model.h5'))
         num_encoder_tokens, enc_pp = load_text_processor(self.seq2seq_path / 'py_code_proc_v2.dpkl')
         num_decoder_tokens, dec_pp = load_text_processor(self.seq2seq_path / 'py_comment_proc_v2.dpkl')
@@ -49,12 +49,22 @@ class semantic:
                                         seq2seq_model=seq2seq_Model)
         with open(self.data_path/'without_docstrings.function', 'r', encoding='utf-8') as f:
             no_docstring_funcs = f.readlines()
+        with open(self.data_path / 'without_docstrings.paraids', 'r', encoding='utf-8') as f:
+            no_docstring_paraids = f.readlines()
+        print("size of paraids = ", len(no_docstring_paraids))
         demo_testdf = pd.DataFrame({'code': no_docstring_funcs, 'comment': '', 'ref': ''})
         auto_tag = seq2seq_inf.demo_model_predictions(n=15, df=demo_testdf)
         print("size of auto_tag = ", len(auto_tag))
+
         with open(self.data_path/'without_docstrings.autotag', 'w', encoding='utf-8') as f:
+            index = 0
             for item in auto_tag:
                 f.write("%s\n" % item)
+                paraid = no_docstring_paraids[index]
+                paraid = paraid.strip()
+                updated_rows = postgres.update_autotag(paraid, item)
+                index=index+1
+
 
     def create_refdf(self):
         # read file of urls
@@ -62,13 +72,17 @@ class semantic:
         code_df = pd.read_csv(open(self.input_path/'without_docstrings.function','rU',encoding='utf-8'), sep='delimiter',quoting=csv.QUOTE_NONE, engine='python', header=None, names=['code'])
         aututag_df = pd.read_csv(open(self.data_path/'without_docstrings.autotag', 'rU', encoding='utf-8'),
                               sep='delimiter', quoting=csv.QUOTE_NONE, engine='python', header=None, names=['autotag'])
+        manualtag_df = pd.read_csv(open(self.data_path / 'without_docstrings.manualtags', 'rU', encoding='utf-8'),
+                                 sep='delimiter', quoting=csv.QUOTE_NONE, engine='python', header=None,
+                                 names=['manualtag'])
         # make sure these files have same number of rows
         print("code_df.shape[0] = ",code_df.shape[0])
         print("url_df.shape[0] = ",url_df.shape[0])
         print("aututag_df.shape[0] = ", aututag_df.shape[0])
-        assert code_df.shape[0] == url_df.shape[0] == aututag_df.shape[0]
+        print("manualtag_df.shape[0] = ", manualtag_df.shape[0])
+        assert code_df.shape[0] == url_df.shape[0] == aututag_df.shape[0] == manualtag_df.shape[0]
         # collect these two together into a dataframe
-        ref_df = pd.concat([url_df, code_df, aututag_df], axis=1).reset_index(drop=True)
+        ref_df = pd.concat([url_df, code_df, aututag_df, manualtag_df], axis=1).reset_index(drop=True)
         self.ref_df = ref_df
         print(ref_df.head())
 
@@ -103,6 +117,7 @@ class semantic:
             code = self.ref_df.iloc[idx].code
             url = self.ref_df.iloc[idx].url
             autotag = self.ref_df.iloc[idx].autotag
+            manualtag = self.ref_df.iloc[idx].manualtag
             print(f'cosine dist:{dist:.4f}  Location: {url}\n---------------\n')
             print("auto tag: ",str(autotag))
             print("Paragraph = ", str(code))
@@ -111,6 +126,7 @@ class semantic:
             t = {'para': code,
                  'location': url,
                  'autotag': autotag,
+                 'manualtag': manualtag,
                  'distance': diststr,
                  'rank': rankstr
                  }
