@@ -131,15 +131,31 @@ class semantic:
                  'rank': rankstr
                  }
             json_results.append(t)
-        #     Dict = {}
-        #     temp = {}
-        #     Dict['para'] = code
-        #     Dict['location'] = url
-        #     Dict['autotag'] = autotag
-        #     Dict['distance'] = dist
-        #     Dict['rank'] = rankcounter
-        #     temp['result'] = Dict
-        #     resultset.append(temp)
-        # print("result = ", resultset)
-
         return json_results
+
+    def get_document_records(self, postgres):
+        paras, filepaths, paraids, autotags, manualtags = postgres.get_paragraphs()
+        length = len(paras)
+        json_results = []
+        for idx in range(length):
+            filepath = str(filepaths[idx])
+            paraid = (paraids[idx])
+            para = (paras[idx])
+            autotag = (autotags[idx])
+            manualtag = (manualtags[idx])
+            t = {'filepath': filepath,
+                 'paraid': paraid,
+                 'para': para,
+                 'autotag': autotag,
+                 'manualtag': manualtag
+                 }
+            json_results.append(t)
+        return json_results
+
+    def get_manualtag(self, postgres, paraid):
+        manualtag = postgres.get_manualtag(paraid)
+        return manualtag
+
+    def update_manualtag(self, postgres, paraid, manualtag):
+        updated_rows = postgres.update_manualtag(paraid, manualtag)
+        return str(updated_rows)

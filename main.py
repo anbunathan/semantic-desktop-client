@@ -13,6 +13,55 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 cors = CORS(app, resources={r"/search/*": {"origins": ["http://54.225.26.77", "http://localhost:3000"]}})
 q2emb = None
 
+@app.route('/search/records/<uuid>', methods=['GET', 'POST'])
+def records(uuid):
+    if request.method == 'POST':
+        print("You are getting records request")
+        json_result = search.get_document_records(postgres)
+        json_object = JFY({"items":json_result})
+        print("json_results = ",json_object)
+        print("response = ", json_object.get_json())
+        return json_object
+    else:
+        print("may be a GET request")
+        return "may be a GET request"
+
+@app.route('/search/getmanualtag/<uuid>', methods=['GET', 'POST'])
+def getmanualtag(uuid):
+    if request.method == 'POST':
+        print("You are getting getmanualtag request")
+        content = request.json
+        print("paragraph id = ", content)
+        json_object = JFY({})
+        json_result = search.get_manualtag(postgres,content)
+        json_object = JFY({"item":json_result})
+        print("json_results = ",json_object)
+        print("response = ", json_object.get_json())
+        return json_object
+    else:
+        print("may be a GET request")
+        return "may be a GET request"
+
+@app.route('/search/updatemanualtag/<uuid>', methods=['GET', 'POST'])
+def updatemanualtag(uuid):
+    if request.method == 'POST':
+        print("You are getting updatemanualtag request")
+        content = request.json
+        manualtag = content['manual_tag']
+        paraid = content['paraid']
+        print("update input = ", content)
+        print("manualtag input = ", manualtag)
+        print("paraid input = ", paraid)
+        json_object = JFY({})
+        json_result = search.update_manualtag(postgres,paraid, manualtag)
+        json_object = JFY({"updatedrows":json_result})
+        print("json_results = ",json_object)
+        print("response = ", json_object.get_json())
+        return json_object
+    else:
+        print("may be a GET request")
+        return "may be a GET request"
+
 @app.route('/search/query/<uuid>', methods=['GET', 'POST'])
 def query(uuid):
     global q2emb
@@ -84,7 +133,7 @@ def setenv(uuid):
             print("file_id = ", file_id)
         # updated_rows = postgres.update_paragraph('1', "r u ok", "fine")
         # print("updated_rows = ", updated_rows)
-        paras, filepaths, paraids, manualtags = postgres.get_paragraphs()
+        paras, filepaths, paraids, autotags, manualtags = postgres.get_paragraphs()
         with open(data_path/'without_docstrings.function', 'w', encoding='utf-8') as f:
             for item in paragraphs:
                 f.write("%s" % item)
