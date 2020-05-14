@@ -5,6 +5,8 @@ from tikaparser import *
 from postgreshandler import *
 from semanticsearch import *
 import time
+from os import listdir
+from os.path import isfile, join
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'the quick brown fox jumps over the lazy   dog'
@@ -96,10 +98,14 @@ def query(uuid):
 #@cross_origin()
 def setenv(uuid):
     global q2emb
+    print("You are getting environment setup request")
     content = request.json
     print("content = ", content)
     print("content = ", len(content))
+    base_dir = ''
+    data_path = Path(base_dir + './data/processed_data/')
     directory_list = []
+    type_list = []
     for item in content:
         print("item = ", item)
         print("key = ", item['key'])
@@ -107,60 +113,68 @@ def setenv(uuid):
         print("directory = ", item['props']['todo']['todo_description'])
         print("type = ", item['props']['todo']['todo_priority'])
         directory_list.append(item['props']['todo']['todo_description'])
+        type_list.append(item['props']['todo']['todo_priority'])
     # list = str(request.values.get("todoList", "None"))
-    # print("directory list = ", list)
-    print("You are getting environment setup request")
-    base_dir = ''
-    data_path = Path(base_dir + './data/processed_data/')
-    directory = "D:/Business/Infineon contest/SemanticSearch/textparser/documents"
-    filename = "LearningParseStructures.docx"
-    if request.method == 'POST':
-        #time.sleep(5)
-        parser = tikaparser(directory,filename)
-        filepath = os.path.join(directory, filename)
-        file, file_extension = os.path.splitext(filepath)
-        print(filepath)
-        paragraphs = parser.parse()
-
-        # for paragraph in paragraphs:
-        #     print(paragraph)
-        #     print('\n')
-        matching_rows = postgres.get_fileinfo(directory, filename)
-        print("matching rows", matching_rows)
-        if matching_rows==0:
-            file_id = postgres.insert_master(directory, filename, file_extension)
-            postgres.insert_paragraph_list(file_id, paragraphs)
-            print("file_id = ", file_id)
-        # updated_rows = postgres.update_paragraph('1', "r u ok", "fine")
-        # print("updated_rows = ", updated_rows)
+    print("directory list = ", directory_list)
+    print("type list = ", type_list)
+    try:
+        idx = 0
+        for directory in directory_list:
+            print("directory = ", directory)
+            if (type_list[idx] == 'Directory'):
+                files = [f for f in listdir(directory) if isfile(join(directory, f))]
+                print("files", files)
+                for filename in files:
+                    print("file = ", filename)
+                    matching_rows = postgres.get_fileinfo(directory, filename)
+                    print("matching rows", matching_rows)
+                    if matching_rows == 0:
+                        parser = tikaparser(directory, filename)
+                        filepath = os.path.join(directory, filename)
+                        file, file_extension = os.path.splitext(filepath)
+                        print(file_extension)
+                        if file_extension in [".doc", ".docx", ".csv", ".xls", ".xlsx", ".ppt", ".pptx", ".pdf"]:
+                            print("File type is supported")
+                            paragraphs = parser.parse()
+                            file_id = postgres.insert_master(directory, filename, file_extension)
+                            postgres.insert_paragraph_list(file_id, paragraphs)
+                            print("file_id = ", file_id)
+            else:
+                print("Directory = %s is of type 'SQLfile'" % directory)
+            idx = idx+1
         paras, filepaths, paraids, autotags, manualtags = postgres.get_paragraphs()
-        with open(data_path/'without_docstrings.function', 'w', encoding='utf-8') as f:
-            for item in paragraphs:
+        with open(data_path / 'without_docstrings.function', 'w', encoding='utf-8') as f:
+            for item in paras:
                 f.write("%s" % item)
-        with open(data_path/'without_docstrings.paraids', 'w', encoding='utf-8') as f:
+        with open(data_path / 'without_docstrings.paraids', 'w', encoding='utf-8') as f:
             for item in paraids:
                 f.write("%s\n" % item)
-        with open(data_path/'without_docstrings.lineage', 'w', encoding='utf-8') as f:
+        with open(data_path / 'without_docstrings.lineage', 'w', encoding='utf-8') as f:
             for item in filepaths:
                 f.write("%s\n" % item)
-        with open(data_path/'without_docstrings.manualtags', 'w', encoding='utf-8') as f:
+        with open(data_path / 'without_docstrings.manualtags', 'w', encoding='utf-8') as f:
             for item in manualtags:
                 f.write("%s\n" % item)
-        # print("number of paras = ", len(paras))
-        # print("number of filepaths = ", len(filepaths))
         search.create_vector()
         search.create_autotag(postgres)
         search.create_refdf()
         search.create_searchindex()
         q2emb = search.search_engine()
         print("Search Environment is Set")
+    except:
+        print("Error in set environement")
+    finally:
+        print("Exit from set environment")
+        return "You are using POST"
+    # directory = "D:/Business/Infineon contest/SemanticSearch/textparser/documents"
+    # filename = "LearningParseStructures.docx"
+    # if request.method == 'POST':
         # deleted_rows = postgres.delete_file('1')
         # print("deleted_rows in master = ", deleted_rows)
         # deleted_rows = postgres.delete_paragraphs('1')
         # print("deleted_rows in paragraphs = ", deleted_rows)
-        return "You are using POST"
-    else:
-        return "You are probably using GET"
+    # else:
+    #     return "You are probably using GET"
 
 
 

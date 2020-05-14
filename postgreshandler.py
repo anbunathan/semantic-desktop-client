@@ -226,7 +226,7 @@ class postgressql:
             params = config()
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
-            cur.execute("SELECT file_id FROM master WHERE  (directory_path = directory_path AND file_name = file_name);")
+            cur.execute("SELECT file_id FROM master WHERE  (directory_path=%s AND file_name=%s);",(directory_path,file_name))
             matching_rows = cur.rowcount
             print("The number of matching rows: ", matching_rows)
             cur.close()
