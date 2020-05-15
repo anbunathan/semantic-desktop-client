@@ -6,6 +6,7 @@
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/postgreshandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/postgreshandler.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/search_index.nmslib" beforeDir="false" afterPath="$PROJECT_DIR$/search_index.nmslib" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/semanticsearch.py" beforeDir="false" afterPath="$PROJECT_DIR$/semanticsearch.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -17,7 +18,7 @@
     <session id="1200313236">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="13" />
+          <entry key="project.closed" value="14" />
           <entry key="project.open.time.0" value="1" />
           <entry key="project.open.time.2" value="1" />
           <entry key="project.open.time.26" value="1" />
@@ -32,8 +33,9 @@
           <entry key="project.open.time.40" value="1" />
           <entry key="project.open.time.41" value="1" />
           <entry key="project.open.time.46" value="1" />
+          <entry key="project.open.time.56" value="1" />
           <entry key="project.open.time.63" value="1" />
-          <entry key="project.opened" value="18" />
+          <entry key="project.opened" value="19" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -56,24 +58,24 @@
           <entry key="dummy" value="6" />
           <entry key="gitignore" value="5" />
           <entry key="ini" value="12" />
-          <entry key="py" value="5624" />
+          <entry key="py" value="6054" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="PLAIN_TEXT" value="23" />
-          <entry key="Python" value="5624" />
+          <entry key="Python" value="6054" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="207">
-              <caret line="142" column="61" selection-start-line="142" selection-start-column="61" selection-end-line="142" selection-end-column="61" />
+            <state relative-caret-position="3451">
+              <caret line="186" column="12" selection-start-line="186" selection-start-column="12" selection-end-line="186" selection-end-column="12" />
               <folding>
                 <element signature="e#0#32#0" expanded="true" />
               </folding>
@@ -81,14 +83,14 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/semanticsearch.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2880">
-              <caret line="160" column="32" selection-start-line="160" selection-start-column="32" selection-end-line="160" selection-end-column="32" />
+            <state relative-caret-position="126">
+              <caret line="179" column="45" selection-start-line="179" selection-start-column="45" selection-end-line="179" selection-end-column="45" />
               <folding>
                 <element signature="e#0#25#0" expanded="true" />
-                <marker date="1589288243815" expanded="true" signature="844:853" ph="..." />
+                <marker date="1589546651786" expanded="true" signature="844:853" ph="..." />
               </folding>
             </state>
           </provider>
@@ -106,7 +108,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../SemanticSearch/client/src/components/pages/Document-Records.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="238">
+            <state relative-caret-position="380">
               <caret line="19" selection-start-line="19" selection-end-line="19" />
             </state>
           </provider>
@@ -136,8 +138,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/postgreshandler.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1982">
-              <caret line="230" column="60" selection-start-line="230" selection-start-column="60" selection-end-line="230" selection-end-column="60" />
+            <state relative-caret-position="-213">
+              <caret line="286" column="28" selection-start-line="286" selection-start-column="28" selection-end-line="286" selection-end-column="28" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
               </folding>
@@ -203,11 +205,13 @@
       <find>update_paragraph</find>
       <find>postgre</find>
       <find>postgreshandler</find>
-      <find>get_paragraphs</find>
       <find>create_tables</find>
       <find>size of auto_tag</find>
       <find>list</find>
       <find>get_fileinfo</find>
+      <find>search_query</find>
+      <find>get_paragraphs</find>
+      <find>get_document_records</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -223,9 +227,9 @@
         <option value="$PROJECT_DIR$/seq2seq_utils.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/lang_model_utils.py" />
-        <option value="$PROJECT_DIR$/semanticsearch.py" />
         <option value="$PROJECT_DIR$/postgreshandler.py" />
         <option value="$PROJECT_DIR$/main.py" />
+        <option value="$PROJECT_DIR$/semanticsearch.py" />
       </list>
     </option>
   </component>
@@ -241,6 +245,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -257,7 +262,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -378,13 +382,14 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="754" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2217262" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info active="true" anchor="bottom" id="Find" order="1" visible="true" weight="0.32850242" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.38325283" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.41706926" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -416,21 +421,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/semanticsearch.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2880">
-          <caret line="160" column="32" selection-start-line="160" selection-start-column="32" selection-end-line="160" selection-end-column="32" />
-          <folding>
-            <element signature="e#0#25#0" expanded="true" />
-            <marker date="1589288243815" expanded="true" signature="844:853" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../SemanticSearch/client/src/components/pages/edit-manualtag.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1020">
           <caret line="51" selection-start-line="51" selection-end-line="51" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../SemanticSearch/client/src/components/pages/Document-Records.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="380">
+          <caret line="19" selection-start-line="19" selection-end-line="19" />
         </state>
       </provider>
     </entry>
@@ -473,17 +474,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../SemanticSearch/client/src/components/pages/Document-Records.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="238">
-          <caret line="19" selection-start-line="19" selection-end-line="19" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/postgreshandler.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1982">
-          <caret line="230" column="60" selection-start-line="230" selection-start-column="60" selection-end-line="230" selection-end-column="60" />
+        <state relative-caret-position="-213">
+          <caret line="286" column="28" selection-start-line="286" selection-start-column="28" selection-end-line="286" selection-end-column="28" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
           </folding>
@@ -492,10 +486,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="207">
-          <caret line="142" column="61" selection-start-line="142" selection-start-column="61" selection-end-line="142" selection-end-column="61" />
+        <state relative-caret-position="3451">
+          <caret line="186" column="12" selection-start-line="186" selection-start-column="12" selection-end-line="186" selection-end-column="12" />
           <folding>
             <element signature="e#0#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/semanticsearch.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="179" column="45" selection-start-line="179" selection-start-column="45" selection-end-line="179" selection-end-column="45" />
+          <folding>
+            <element signature="e#0#25#0" expanded="true" />
+            <marker date="1589546651786" expanded="true" signature="844:853" ph="..." />
           </folding>
         </state>
       </provider>

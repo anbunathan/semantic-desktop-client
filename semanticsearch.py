@@ -102,18 +102,20 @@ class semantic:
         q2emb = Query2Emb(lang_model=lang_model,vocab=vocab)
         return q2emb
 
-    def search_query(self, q2emb, str_search, k=2):
+    def search_query(self, postgres, q2emb, str_search, k=2):
         query2emb_func = q2emb.emb_mean
         search_index = nmslib.init(method='hnsw', space='cosinesimil')
         search_index.loadIndex('search_index.nmslib')
         query = query2emb_func(str_search)
         idxs, dists = search_index.knnQuery(query, k=k)
-        rankcounter=0
+        length = len(dists)
+        print("length of dists = ", length)
+        rankcounter=length+1
         resultset = []
         json_results = []
         # iterate over todos
-        for idx, dist in zip(idxs, dists):
-            rankcounter = rankcounter+1
+        for idx, dist in zip(sorted(idxs, reverse=True), sorted(dists, reverse=True)):
+            rankcounter = rankcounter-1
             code = self.ref_df.iloc[idx].code
             url = self.ref_df.iloc[idx].url
             autotag = self.ref_df.iloc[idx].autotag
@@ -123,12 +125,16 @@ class semantic:
             print("Paragraph = ", str(code))
             rankstr = str(rankcounter)
             diststr = str(dist)
+            postgres.insert_result_list(
+                code, url, diststr, rankstr, str_search, autotag, manualtag
+            )
             t = {'para': code,
                  'location': url,
                  'autotag': autotag,
                  'manualtag': manualtag,
                  'distance': diststr,
                  'rank': rankstr
+
                  }
             json_results.append(t)
         return json_results
@@ -152,6 +158,30 @@ class semantic:
             json_results.append(t)
         return json_results
 
+    def get_results(self, postgres):
+        paras, locations, autotags, manualtags, distances, ranks, searchstrings = postgres.get_results()
+        length = len(paras)
+        json_results = []
+        for idx in range(length):
+            para = (paras[idx])
+            location = (locations[idx])
+            autotag = (autotags[idx])
+            manualtag = (manualtags[idx])
+            distance = (distances[idx])
+            rank = (ranks[idx])
+            searchstring = (searchstrings[idx])
+            t = {
+                 'para': para,
+                 'location': location,
+                 'autotag': autotag,
+                 'manualtag': manualtag,
+                 'distance': distance,
+                 'rank': rank,
+                 'searchstring': searchstring
+                 }
+            json_results.append(t)
+        return json_results
+
     def get_manualtag(self, postgres, paraid):
         manualtag = postgres.get_manualtag(paraid)
         return manualtag
@@ -159,3 +189,16 @@ class semantic:
     def update_manualtag(self, postgres, paraid, manualtag):
         updated_rows = postgres.update_manualtag(paraid, manualtag)
         return str(updated_rows)
+
+    def unexpected_error(self):
+        status_code = 500
+        success = False
+        response = {
+            'success': success,
+            'error': {
+                'type': 'UnexpectedException',
+                'message': 'An unexpected error has occurred.'
+            }
+        }
+
+        return jsonify(response), status_code

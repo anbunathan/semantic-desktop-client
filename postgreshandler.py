@@ -47,6 +47,18 @@ class postgressql:
             )
             """,
             """
+            CREATE TABLE results (
+                result_id SERIAL PRIMARY KEY,
+                para TEXT NOT NULL,
+                location TEXT NOT NULL,
+                autotag TEXT NOT NULL,
+                manualtag TEXT NULL,
+                distance TEXT NOT NULL,
+                rank TEXT NOT NULL,
+                searchstring TEXT NOT NULL
+            )
+            """,
+            """
             CREATE TABLE paragraphs (
                     paragraph_id SERIAL PRIMARY KEY,
                     file_id INTEGER NOT NULL,
@@ -70,6 +82,32 @@ class postgressql:
             cur.close()
             # commit the changes
             conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+    def insert_result_list(self, para, location, distance, rank, searchstring, autotag, manualtag=None ):
+        """ insert multiple vendors into the vendors table  """
+        sql = """INSERT INTO results(para, location, autotag, manualtag, distance, rank, searchstring)
+                         VALUES(%s,%s,%s,%s,%s,%s,%s);"""
+        conn = None
+        try:
+            # read database configuration
+            params = config()
+            # connect to the PostgreSQL database
+            conn = psycopg2.connect(**params)
+            # create a new cursor
+            cur = conn.cursor()
+            # execute the INSERT statement
+            #cur.executemany(sql, [file_id, paragraph_list, automatic_tag, manual_tag])
+            cur.execute(sql, (para, location, autotag, manualtag, distance, rank, searchstring))
+
+            # commit the changes to the database
+            conn.commit()
+            # close communication with the database
+            cur.close()
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
         finally:
@@ -236,6 +274,52 @@ class postgressql:
             if conn is not None:
                 conn.close()
         return matching_rows
+
+    def get_results(self):
+        """ query parts from the parts table """
+        conn = None
+        paras = None
+        locations = None
+        autotags = None
+        manualtags = None
+        distances = None
+        ranks = None
+        searchstrings = None
+        try:
+            params = config()
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+            cur.execute("SELECT para FROM results ORDER BY result_id DESC")
+            paras = cur.fetchall()
+            print("The number of paragraphs: ", cur.rowcount)
+
+            cur.execute("SELECT location FROM results ORDER BY result_id DESC")
+            locations = cur.fetchall()
+            print("The number of locations: ", cur.rowcount)
+            cur.execute("SELECT autotag FROM results ORDER BY result_id DESC")
+            autotags = cur.fetchall()
+            print("The number of autotags: ", cur.rowcount)
+            cur.execute("SELECT manualtag FROM results ORDER BY result_id DESC")
+            manualtags = cur.fetchall()
+            print("The number of manualtags: ", cur.rowcount)
+            cur.execute("SELECT distance FROM results ORDER BY result_id DESC")
+            distances = cur.fetchall()
+            print("The number of distances: ", cur.rowcount)
+            cur.execute("SELECT rank FROM results ORDER BY result_id DESC")
+            ranks = cur.fetchall()
+            print("The number of ranks: ", cur.rowcount)
+            cur.execute("SELECT searchstring FROM results ORDER BY result_id DESC")
+            searchstrings = cur.fetchall()
+            print("The number of searchstrings: ", cur.rowcount)
+
+
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+        return paras, locations, autotags, manualtags, distances, ranks, searchstrings
 
     def get_paragraphs(self):
         """ query parts from the parts table """

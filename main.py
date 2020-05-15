@@ -15,6 +15,19 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 cors = CORS(app, resources={r"/search/*": {"origins": ["http://54.225.26.77", "http://localhost:3000"]}})
 q2emb = None
 
+@app.route('/search/results/<uuid>', methods=['GET', 'POST'])
+def results(uuid):
+    if request.method == 'POST':
+        print("You are getting results request")
+        json_result = search.get_results(postgres)
+        json_object = JFY({"items":json_result})
+        print("json_results = ",json_object)
+        print("response = ", json_object.get_json())
+        return json_object
+    else:
+        print("may be a GET request")
+        return "may be a GET request"
+
 @app.route('/search/records/<uuid>', methods=['GET', 'POST'])
 def records(uuid):
     if request.method == 'POST':
@@ -64,6 +77,7 @@ def updatemanualtag(uuid):
         print("may be a GET request")
         return "may be a GET request"
 
+
 @app.route('/search/query/<uuid>', methods=['GET', 'POST'])
 def query(uuid):
     global q2emb
@@ -71,12 +85,13 @@ def query(uuid):
         content = request.json
         print ("search string = ", content['todo_description'])
         print("You are getting search request")
+        search_string = content['todo_description']
         # json_dump = jsonify({"uuid": uuid})
         # json_object = json_response({})
         json_object = JFY({})
         resultset=None
         if q2emb!=None:
-            json_result = search.search_query(q2emb, "How are you?", 10)
+            json_result = search.search_query(postgres, q2emb, search_string, 10)
             # json_result = json.dumps(json_result)
             json_object = JFY({"items":json_result})
             print("json_results = ",json_object)
@@ -155,17 +170,23 @@ def setenv(uuid):
         with open(data_path / 'without_docstrings.manualtags', 'w', encoding='utf-8') as f:
             for item in manualtags:
                 f.write("%s\n" % item)
+        print("without_docstrings files are created")
         search.create_vector()
+        print("vectors are created")
         search.create_autotag(postgres)
+        print("Autotags are created")
         search.create_refdf()
+        print("Ref_dfs are created")
         search.create_searchindex()
+        print("Searchindexs are created")
         q2emb = search.search_engine()
         print("Search Environment is Set")
     except:
         print("Error in set environement")
+        return search.unexpected_error()
     finally:
         print("Exit from set environment")
-        return "You are using POST"
+        return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
     # directory = "D:/Business/Infineon contest/SemanticSearch/textparser/documents"
     # filename = "LearningParseStructures.docx"
     # if request.method == 'POST':
