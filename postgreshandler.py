@@ -41,9 +41,16 @@ class postgressql:
             """
             CREATE TABLE master (
                 file_id SERIAL PRIMARY KEY,
-                directory_path VARCHAR(255) NOT NULL,
-                file_name VARCHAR(255) NOT NULL,
+                directory_path TEXT NOT NULL,
+                file_name TEXT NOT NULL,
                 file_extension VARCHAR(5) NOT NULL
+            )
+            """,
+            """
+            CREATE TABLE directory (
+                directory_id SERIAL PRIMARY KEY,
+                directory_path TEXT NOT NULL,
+                input_type TEXT NOT NULL                
             )
             """,
             """
@@ -87,6 +94,165 @@ class postgressql:
         finally:
             if conn is not None:
                 conn.close()
+
+    def get_directory_info(self, directory_path):
+        """ query data from the vendors table """
+        conn = None
+        matching_rows = 0
+        status = 'success'
+        try:
+            params = config()
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+            cur.execute("SELECT directory_id FROM directory WHERE (directory_path=%s);",(directory_path,))
+            matching_rows = cur.rowcount
+            print("The number of matching rows: ", matching_rows)
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Error in get_directory_info = ",error)
+            status = error
+        finally:
+            if conn is not None:
+                conn.close()
+        return matching_rows, status
+
+    def delete_directory(self, directoryid):
+        """ delete part by part id """
+        conn = None
+        rows_deleted = 0
+        status = 'success'
+        try:
+            # read database configuration
+            params = config()
+            # connect to the PostgreSQL database
+            conn = psycopg2.connect(**params)
+            # create a new cursor
+            cur = conn.cursor()
+            # execute the UPDATE  statement
+            cur.execute("DELETE FROM directory WHERE directory_id = %s", (directoryid,))
+            # get the number of updated rows
+            rows_deleted = cur.rowcount
+            # Commit the changes to the database
+            conn.commit()
+            # Close communication with the PostgreSQL database
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Error in delete_directory = ", error)
+            status = error
+        finally:
+            if conn is not None:
+                conn.close()
+        return rows_deleted, status
+
+    def update_directory_path(self, directoryid, directory_path, input_type):
+        """ update vendor name based on the vendor id """
+        sql = """ UPDATE directory
+                    SET directory_path = %s,
+                    input_type = %s
+                    WHERE directory_id = %s"""
+        conn = None
+        updated_rows = 0
+        status = 'success'
+        try:
+            # read database configuration
+            params = config()
+            # connect to the PostgreSQL database
+            conn = psycopg2.connect(**params)
+            # create a new cursor
+            cur = conn.cursor()
+            # execute the UPDATE  statement
+            cur.execute(sql, (directory_path, input_type, directoryid))
+            # get the number of updated rows
+            updated_rows = cur.rowcount
+            # Commit the changes to the database
+            conn.commit()
+            # Close communication with the PostgreSQL database
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Error in update_directory_path = ", error)
+            status = error
+        finally:
+            if conn is not None:
+                conn.close()
+        return updated_rows, status
+
+    def get_directory_path_byid(self, directoryid):
+        """ query parts from the parts table """
+        conn = None
+        directory = None
+        inputtype = None
+        try:
+            params = config()
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+            cur.execute("SELECT directory_path, input_type FROM directory WHERE (directory_id=%s);", (str(directoryid)),)
+            directory, inputtype = cur.fetchone()
+            print("directory = ", directory)
+            print("inputtype = ", inputtype)
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Error in get_directory_path_byid = ", error)
+        finally:
+            if conn is not None:
+                conn.close()
+        return directory, inputtype
+
+    def insert_directory(self, directory_path, input_type):
+        """ insert a new vendor into the vendors table """
+        sql = """INSERT INTO directory(directory_path, input_type)
+                 VALUES(%s, %s) RETURNING directory_id;"""
+        conn = None
+        directory_id = None
+        status='success'
+        try:
+            # read database configuration
+            params = config()
+            # connect to the PostgreSQL database
+            conn = psycopg2.connect(**params)
+            # create a new cursor
+            cur = conn.cursor()
+            # execute the INSERT statement
+            cur.execute(sql, (directory_path, input_type))
+            # get the generated id back
+            directory_id = cur.fetchone()[0]
+            # commit the changes to the database
+            conn.commit()
+            # close communication with the database
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Error in insert_directory = ", error)
+            status=error
+        finally:
+            if conn is not None:
+                conn.close()
+        return directory_id, status
+
+    def get_directory_path(self):
+        """ query parts from the parts table """
+        conn = None
+        directories = None
+        inputtypes = None
+        directoryids = None
+        try:
+            params = config()
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+            cur.execute("SELECT directory_path FROM directory ORDER BY directory_id")
+            directories = cur.fetchall()
+            print("The number of paragraphs: ", cur.rowcount)
+            cur.execute("SELECT input_type FROM directory ORDER BY directory_id")
+            inputtypes = cur.fetchall()
+            print("The number of input types: ", cur.rowcount)
+            cur.execute("SELECT directory_id FROM directory ORDER BY directory_id")
+            directoryids = cur.fetchall()
+            print("The number of autotags: ", cur.rowcount)
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Error in get_directory_path = ", error)
+        finally:
+            if conn is not None:
+                conn.close()
+        return directories, inputtypes, directoryids
 
     def insert_result_list(self, para, location, distance, rank, searchstring, autotag, manualtag=None ):
         """ insert multiple vendors into the vendors table  """
@@ -292,7 +458,6 @@ class postgressql:
             cur.execute("SELECT para FROM results ORDER BY result_id DESC")
             paras = cur.fetchall()
             print("The number of paragraphs: ", cur.rowcount)
-
             cur.execute("SELECT location FROM results ORDER BY result_id DESC")
             locations = cur.fetchall()
             print("The number of locations: ", cur.rowcount)
@@ -311,8 +476,6 @@ class postgressql:
             cur.execute("SELECT searchstring FROM results ORDER BY result_id DESC")
             searchstrings = cur.fetchall()
             print("The number of searchstrings: ", cur.rowcount)
-
-
             cur.close()
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)

@@ -7,6 +7,7 @@ from semanticsearch import *
 import time
 from os import listdir
 from os.path import isfile, join
+import sys
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'the quick brown fox jumps over the lazy   dog'
@@ -14,6 +15,69 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 #Allow specific origin
 cors = CORS(app, resources={r"/search/*": {"origins": ["http://54.225.26.77", "http://localhost:3000"]}})
 q2emb = None
+
+@app.route('/search/deletedirectory/<uuid>', methods=['GET', 'POST'])
+def deletedirectory(uuid):
+    print("You are getting delete directory request")
+    content = request.json
+    directory = content['directory']
+    inputtype = content['inputtype']
+    directoryid = content['directoryid']
+    print("directory path = ", directory)
+    print("input type = ", inputtype)
+    print("directoryid = ", directoryid)
+    json_result = search.delete_directory_path(postgres, directoryid)
+    print("response for delete_directory_path = ", json_result)
+    return json_result
+
+@app.route('/search/updatedirectory/<uuid>', methods=['GET', 'POST'])
+def updatedirectory(uuid):
+    print("You are getting update directory request")
+    content = request.json
+    directory = content['directory']
+    inputtype = content['inputtype']
+    directoryid = content['directoryid']
+    print("directory path = ", directory)
+    print("input type = ", inputtype)
+    print("directoryid = ", directoryid)
+    json_result = search.update_directory_path(postgres, directoryid, directory, inputtype)
+    print("response for update_directory_path = ", json_result)
+    return json_result
+
+@app.route('/search/getdirectorybyid/<uuid>', methods=['GET', 'POST'])
+def getdirectorybyid(uuid):
+    print("You are getting get directory by id request")
+    content = request.json
+    directoryid = content
+    print("directoryid = ",directoryid)
+    json_result = search.get_directory_path_byid(postgres, directoryid)
+    json_object = JFY({"item": json_result})
+    print("json_results = ", json_object)
+    print("response for get_directory_path_byid = ", json_object.get_json())
+    return json_object
+
+@app.route('/search/getdirectory/<uuid>', methods=['GET', 'POST'])
+def getdirectory(uuid):
+    print("You are getting insert directory request")
+    content = request.json
+    json_result = search.get_directory_path(postgres)
+    json_object = JFY({"items": json_result})
+    print("response for get_directory_path = ", json_object.get_json())
+    return json_object
+
+@app.route('/search/adddirectory/<uuid>', methods=['GET', 'POST'])
+def adddirectory(uuid):
+    print("You are getting insert directory request")
+    content = request.json
+    directory_path = content['todo_description']
+    directory_path = directory_path.replace("\\","/")
+    input_type = content['todo_priority']
+    print("directory path = ", directory_path)
+    print("input type = ", input_type)
+    json_result = search.insert_directory_path(postgres, directory_path, input_type)
+    print("response for insert_directory_path = ", json_result)
+    return json_result
+
 
 @app.route('/search/results/<uuid>', methods=['GET', 'POST'])
 def results(uuid):
@@ -119,24 +183,19 @@ def setenv(uuid):
     print("content = ", len(content))
     base_dir = ''
     data_path = Path(base_dir + './data/processed_data/')
-    directory_list = []
-    type_list = []
-    for item in content:
-        print("item = ", item)
-        print("key = ", item['key'])
-        print("ID = ", item['props']['todo']['_id'])
-        print("directory = ", item['props']['todo']['todo_description'])
-        print("type = ", item['props']['todo']['todo_priority'])
-        directory_list.append(item['props']['todo']['todo_description'])
-        type_list.append(item['props']['todo']['todo_priority'])
-    # list = str(request.values.get("todoList", "None"))
+    item = content[0]
+    print(item['props']['directory']['directory'])
+    directory_list = item['props']['directory']['directory']
+    inputtype_list = item['props']['directory']['inputtype']
+    directoryid_list = item['props']['directory']['directoryid']
     print("directory list = ", directory_list)
-    print("type list = ", type_list)
+    print("inputtype_list = ", inputtype_list)
+    print("directoryid_list = ", directoryid_list)
     try:
         idx = 0
         for directory in directory_list:
             print("directory = ", directory)
-            if (type_list[idx] == 'Directory'):
+            if (inputtype_list[idx] == 'Directory'):
                 files = [f for f in listdir(directory) if isfile(join(directory, f))]
                 print("files", files)
                 for filename in files:
@@ -181,22 +240,16 @@ def setenv(uuid):
         print("Searchindexs are created")
         q2emb = search.search_engine()
         print("Search Environment is Set")
-    except:
-        print("Error in set environement")
-        return search.unexpected_error()
+        return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+    except Exception as e:
+        print("Error in set environement = ", e)
+        print(sys.exc_value)
+        response, status = search.unexpected_error('Error in set environement')
+        return response, status
+
     finally:
         print("Exit from set environment")
-        return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
-    # directory = "D:/Business/Infineon contest/SemanticSearch/textparser/documents"
-    # filename = "LearningParseStructures.docx"
-    # if request.method == 'POST':
-        # deleted_rows = postgres.delete_file('1')
-        # print("deleted_rows in master = ", deleted_rows)
-        # deleted_rows = postgres.delete_paragraphs('1')
-        # print("deleted_rows in paragraphs = ", deleted_rows)
-    # else:
-    #     return "You are probably using GET"
-
+    # return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
 
 
 if __name__ == "__main__":

@@ -15,6 +15,7 @@ from fastai import *
 from seq2seq_utils import Seq2Seq_Inference
 import pandas as pd
 import json
+from keras import backend as K
 
 class semantic:
     base_dir = ''
@@ -26,6 +27,7 @@ class semantic:
     ref_df = None
 
     def create_vector(self):
+        K.clear_session()
         code2emb_model = load_model(str(self.code2emb_path/'code2emb_model.hdf5'), custom_objects=None, compile=False)
         num_encoder_tokens, enc_pp = load_text_processor(self.seq2seq_path/'py_code_proc_v2.dpkl')
         # no_docstring_funcs = self.data_path/'train.function'
@@ -38,9 +40,11 @@ class semantic:
         # make sure the number of output rows equal the number of input rows
         assert nodoc_vecs.shape[0] == encinp.shape[0]
         np.save(self.code2emb_path/'nodoc_vecs.npy', nodoc_vecs)
+        K.clear_session()
         print("Vector is created")
 
     def create_autotag(self, postgres):
+        K.clear_session()
         seq2seq_Model = load_model(str(self.seq2seq_path / 'code_summary_seq2seq_model.h5'))
         num_encoder_tokens, enc_pp = load_text_processor(self.seq2seq_path / 'py_code_proc_v2.dpkl')
         num_decoder_tokens, dec_pp = load_text_processor(self.seq2seq_path / 'py_comment_proc_v2.dpkl')
@@ -55,7 +59,6 @@ class semantic:
         demo_testdf = pd.DataFrame({'code': no_docstring_funcs, 'comment': '', 'ref': ''})
         auto_tag = seq2seq_inf.demo_model_predictions(n=15, df=demo_testdf)
         print("size of auto_tag = ", len(auto_tag))
-
         with open(self.data_path/'without_docstrings.autotag', 'w', encoding='utf-8') as f:
             index = 0
             for item in auto_tag:
@@ -64,7 +67,7 @@ class semantic:
                 paraid = paraid.strip()
                 updated_rows = postgres.update_autotag(paraid, item)
                 index=index+1
-
+        K.clear_session()
 
     def create_refdf(self):
         # read file of urls
@@ -190,15 +193,83 @@ class semantic:
         updated_rows = postgres.update_manualtag(paraid, manualtag)
         return str(updated_rows)
 
-    def unexpected_error(self):
-        status_code = 500
+    def unexpected_error(self, errror_message):
+        status_code = 400
         success = False
         response = {
             'success': success,
             'error': {
                 'type': 'UnexpectedException',
-                'message': 'An unexpected error has occurred.'
+                'message': errror_message
             }
         }
-
         return jsonify(response), status_code
+
+    def success_response(self, success_message):
+        status_code = 200
+        success = True
+        response = {
+            'success': success,
+            'message': {
+                'type': 'SuccessfulOperation',
+                'message': success_message
+            }
+        }
+        return jsonify(response), status_code
+
+    def insert_directory_path(self, postgres, directory_path, input_type):
+        matching_rows, status = postgres.get_directory_info(directory_path)
+        if(matching_rows == 0 and status == 'success'):
+            directory_id, status = postgres.insert_directory(directory_path, input_type)
+            print("directory id of inserted direcory = ", directory_id)
+        if(matching_rows != 0):
+            print("Directory already exists in database")
+        if(status=='success'):
+            response = self.success_response('directory added successfully')
+        else:
+            response = self.success_response('adding directory failed')
+        return response
+
+    def get_directory_path(self, postgres):
+        directories, inputtypes, directoryids = postgres.get_directory_path()
+        print("directories = ", directories)
+        print("inputtypes = ", inputtypes)
+        length = len(directories)
+        json_results = []
+        for idx in range(length):
+            directory = (directories[idx])
+            inputtype = (inputtypes[idx])
+            directoryid = (directoryids[idx])
+            t = {'directory': directory,
+                 'inputtype': inputtype,
+                 'directoryid': directoryid
+                 }
+            json_results.append(t)
+        return json_results
+
+    def get_directory_path_byid(self, postgres, directoryid):
+        directory, inputtype = postgres.get_directory_path_byid(directoryid)
+        json_results = {
+            'directory': directory,
+            'inputtype': inputtype,
+            'directoryid': directoryid
+             }
+        return json_results
+
+    def update_directory_path(self, postgres, directoryid, directory_path, input_type):
+        updated_rows, status = postgres.update_directory_path(directoryid, directory_path, input_type)
+        print("updated_rows = ", updated_rows)
+        if(status=='success'):
+            response = self.success_response('directory updated successfully')
+        else:
+            response = self.success_response('updating directory failed')
+        return response
+
+    def delete_directory_path(self, postgres, directoryid):
+        deleted_rows, status = postgres.delete_directory(directoryid)
+        print("deleted_rows = ", deleted_rows)
+        if(status=='success'):
+            response = self.success_response('directory deleted successfully')
+        else:
+            response = self.success_response('deleting directory failed')
+        return response
