@@ -183,11 +183,20 @@ def setenv(uuid):
     print("content = ", len(content))
     base_dir = ''
     data_path = Path(base_dir + './data/processed_data/')
-    item = content[0]
-    print(item['props']['directory']['directory'])
-    directory_list = item['props']['directory']['directory']
-    inputtype_list = item['props']['directory']['inputtype']
-    directoryid_list = item['props']['directory']['directoryid']
+    directory_list = []
+    inputtype_list = []
+    directoryid_list = []
+    for item in content:
+        print(item['props']['directory']['directory'])
+        directory = item['props']['directory']['directory']
+        inputtype = item['props']['directory']['inputtype']
+        directoryid = item['props']['directory']['directoryid']
+        print("directory  = ", directory)
+        print("inputtype = ", inputtype)
+        print("directoryid = ", directoryid)
+        directory_list.append(directory[0])
+        inputtype_list.append(inputtype[0])
+        directoryid_list.append(directoryid[0])
     print("directory list = ", directory_list)
     print("inputtype_list = ", inputtype_list)
     print("directoryid_list = ", directoryid_list)
@@ -203,13 +212,12 @@ def setenv(uuid):
                     matching_rows = postgres.get_fileinfo(directory, filename)
                     print("matching rows", matching_rows)
                     if matching_rows == 0:
-                        parser = tikaparser(directory, filename)
                         filepath = os.path.join(directory, filename)
                         file, file_extension = os.path.splitext(filepath)
                         print(file_extension)
                         if file_extension in [".doc", ".docx", ".csv", ".xls", ".xlsx", ".ppt", ".pptx", ".pdf"]:
                             print("File type is supported")
-                            paragraphs = parser.parse()
+                            paragraphs = parser.parse(directory, filename)
                             file_id = postgres.insert_master(directory, filename, file_extension)
                             postgres.insert_paragraph_list(file_id, paragraphs)
                             print("file_id = ", file_id)
@@ -243,7 +251,7 @@ def setenv(uuid):
         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
     except Exception as e:
         print("Error in set environement = ", e)
-        print(sys.exc_value)
+        # print(sys.exc_value)
         response, status = search.unexpected_error('Error in set environement')
         return response, status
 
@@ -255,6 +263,7 @@ def setenv(uuid):
 if __name__ == "__main__":
     search = semantic()
     postgres = postgressql()
+    parser = tikaparser()
     # postgres.connect()
     #execute DROP TABLE paragraphs; from sql shell if schema is changed
     postgres.create_tables()

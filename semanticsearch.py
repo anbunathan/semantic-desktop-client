@@ -36,6 +36,7 @@ class semantic:
         encinp = enc_pp.transform_parallel(no_docstring_funcs)
         np.save(self.code2emb_path/'nodoc_encinp.npy', encinp)
         encinp = np.load(self.code2emb_path/'nodoc_encinp.npy')
+        print("Going to create the vector")
         nodoc_vecs = code2emb_model.predict(encinp, batch_size=2000)
         # make sure the number of output rows equal the number of input rows
         assert nodoc_vecs.shape[0] == encinp.shape[0]

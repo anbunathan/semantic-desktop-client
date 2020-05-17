@@ -6,9 +6,12 @@ from tika import parser
 import textwrap
 
 class tikaparser:
-    def __init__(self, directory, filename):
-        self.directory = directory
-        self.filename = filename
+    directory = ""
+    filename = ""
+    def __init__(sel):
+        directory = ""
+        filename = ""
+        print("parser object created")
 
     def parseDOC (self):
         filepath = os.path.join(self.directory, self.filename)
@@ -105,7 +108,9 @@ class tikaparser:
         paragraphs = text.split('\n')
         return paragraphs
 
-    def parse (self):
+    def parse (self, directory, filename):
+        self.directory = directory
+        self.filename = filename
         paragraphs = None
         filepath = os.path.join(self.directory, self.filename)
         filename, file_extension = os.path.splitext(filepath)
