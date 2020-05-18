@@ -1,3 +1,6 @@
+import os
+import glob
+from os import path
 from flask import jsonify
 from keras.models import load_model
 from pathlib import Path
@@ -8,7 +11,8 @@ from seq2seq_utils import load_text_processor
 from ktext.preprocess import processor
 import torch
 import nmslib
-from lang_model_utils import load_lm_vocab, Query2Emb
+from lang_model_utils import load_lm_vocab
+from lang_model_utils import Query2Emb
 from general_utils import create_nmslib_search_index
 import csv
 from fastai import *
@@ -17,6 +21,7 @@ import pandas as pd
 import json
 from keras import backend as K
 
+
 class semantic:
     base_dir = ''
     code2emb_path = Path(base_dir+'./data/code2emb/')
@@ -24,48 +29,87 @@ class semantic:
     data_path = Path(base_dir+'./data/processed_data/')
     output_path = Path(base_dir + './data/search')
     input_path = Path(base_dir +'./data/processed_data/')
+    npy_path = Path(base_dir + './data/npy/')
     ref_df = None
+    code2emb_model = None
+    num_encoder_tokens_vector = None
+    enc_pp_vector = None
+    seq2seq_inf = None
+    q2emb = None
 
-    def create_vector(self):
-        K.clear_session()
-        code2emb_model = load_model(str(self.code2emb_path/'code2emb_model.hdf5'), custom_objects=None, compile=False)
-        num_encoder_tokens, enc_pp = load_text_processor(self.seq2seq_path/'py_code_proc_v2.dpkl')
-        # no_docstring_funcs = self.data_path/'train.function'
-        with open(self.data_path/'without_docstrings.function', 'r', encoding='utf-8') as f:
-            no_docstring_funcs = f.readlines()
-        encinp = enc_pp.transform_parallel(no_docstring_funcs)
-        np.save(self.code2emb_path/'nodoc_encinp.npy', encinp)
-        encinp = np.load(self.code2emb_path/'nodoc_encinp.npy')
-        print("Going to create the vector")
-        nodoc_vecs = code2emb_model.predict(encinp, batch_size=2000)
-        # make sure the number of output rows equal the number of input rows
-        assert nodoc_vecs.shape[0] == encinp.shape[0]
-        np.save(self.code2emb_path/'nodoc_vecs.npy', nodoc_vecs)
-        K.clear_session()
-        print("Vector is created")
-
-    def create_autotag(self, postgres):
+    def load_seq2seq_model(self):
         K.clear_session()
         seq2seq_Model = load_model(str(self.seq2seq_path / 'code_summary_seq2seq_model.h5'))
         num_encoder_tokens, enc_pp = load_text_processor(self.seq2seq_path / 'py_code_proc_v2.dpkl')
         num_decoder_tokens, dec_pp = load_text_processor(self.seq2seq_path / 'py_comment_proc_v2.dpkl')
-        seq2seq_inf = Seq2Seq_Inference(encoder_preprocessor=enc_pp,
+        self.seq2seq_inf = Seq2Seq_Inference(encoder_preprocessor=enc_pp,
                                         decoder_preprocessor=dec_pp,
                                         seq2seq_model=seq2seq_Model)
-        with open(self.data_path/'without_docstrings.function', 'r', encoding='utf-8') as f:
-            no_docstring_funcs = f.readlines()
-        with open(self.data_path / 'without_docstrings.paraids', 'r', encoding='utf-8') as f:
-            no_docstring_paraids = f.readlines()
+
+
+    def load_code2emb_model(self):
+        K.clear_session()
+        self.code2emb_model = load_model(str(self.code2emb_path / 'code2emb_model.hdf5'), custom_objects=None, compile=False)
+        self.num_encoder_tokens_vector, self.enc_pp_vector = load_text_processor(self.seq2seq_path / 'py_code_proc_v2.dpkl')
+
+    def create_vector(self, postgres, file_id):
+        K.clear_session()
+        print("Going to load code2emb_model")
+        self.code2emb_model = load_model(str(self.code2emb_path / 'code2emb_model.hdf5'), custom_objects=None,
+                                         compile=False)
+        print("Going to load_text_processor")
+        self.num_encoder_tokens_vector, self.enc_pp_vector = load_text_processor(
+            self.seq2seq_path / 'py_code_proc_v2.dpkl')
+        # with open(self.data_path/'without_docstrings.function', 'r', encoding='utf-8') as f:
+        #     no_docstring_funcs = f.readlines()
+        paras, paraids, autotags, manualtags = postgres.get_paragraphs_fileid(file_id)
+        paras = [str(item) for item in paras]
+        no_docstring_funcs = paras
+        print("no_docstring_funcs = ", no_docstring_funcs)
+        print("Going to transform_parallel")
+        # encinp = self.enc_pp_vector.transform_parallel(no_docstring_funcs)
+        encinp = self.enc_pp_vector.transform(no_docstring_funcs)
+        # np.save(self.code2emb_path/'nodoc_encinp.npy', encinp)
+        # encinp = np.load(self.code2emb_path/'nodoc_encinp.npy')
+        print("Going to create the vector")
+        nodoc_vecs = self.code2emb_model.predict(encinp, batch_size=2000)
+        # make sure the number of output rows equal the number of input rows
+        assert nodoc_vecs.shape[0] == encinp.shape[0]
+        # np.save(self.code2emb_path/'nodoc_vecs.npy', nodoc_vecs)
+        npy_filename = str(file_id) + "####" + "nodoc_vecs.npy"
+        np.save(self.npy_path / npy_filename, nodoc_vecs)
+
+        K.clear_session()
+        print("Vector is created")
+
+    def create_autotag(self, postgres, file_id):
+        K.clear_session()
+        seq2seq_Model = load_model(str(self.seq2seq_path / 'code_summary_seq2seq_model.h5'))
+        num_encoder_tokens, enc_pp = load_text_processor(self.seq2seq_path / 'py_code_proc_v2.dpkl')
+        num_decoder_tokens, dec_pp = load_text_processor(self.seq2seq_path / 'py_comment_proc_v2.dpkl')
+        self.seq2seq_inf = Seq2Seq_Inference(encoder_preprocessor=enc_pp,
+                                             decoder_preprocessor=dec_pp,
+                                             seq2seq_model=seq2seq_Model)
+        # with open(self.data_path/'without_docstrings.function', 'r', encoding='utf-8') as f:
+        #     no_docstring_funcs = f.readlines()
+        # with open(self.data_path / 'without_docstrings.paraids', 'r', encoding='utf-8') as f:
+        #     no_docstring_paraids = f.readlines()
+        paras, paraids, autotags, manualtags = postgres.get_paragraphs_fileid(file_id)
+        paras = [str(item) for item in paras]
+        no_docstring_funcs = paras
+        no_docstring_paraids = paraids
+        print("no_docstring_paraids = ", no_docstring_paraids)
+        print("size of paragraphs = ", len(no_docstring_funcs))
         print("size of paraids = ", len(no_docstring_paraids))
         demo_testdf = pd.DataFrame({'code': no_docstring_funcs, 'comment': '', 'ref': ''})
-        auto_tag = seq2seq_inf.demo_model_predictions(n=15, df=demo_testdf)
+        auto_tag = self.seq2seq_inf.demo_model_predictions(n=15, df=demo_testdf)
         print("size of auto_tag = ", len(auto_tag))
         with open(self.data_path/'without_docstrings.autotag', 'w', encoding='utf-8') as f:
             index = 0
             for item in auto_tag:
                 f.write("%s\n" % item)
                 paraid = no_docstring_paraids[index]
-                paraid = paraid.strip()
+                # paraid = paraid.strip()
                 updated_rows = postgres.update_autotag(paraid, item)
                 index=index+1
         K.clear_session()
@@ -90,8 +134,35 @@ class semantic:
         self.ref_df = ref_df
         print(ref_df.head())
 
-    def create_searchindex(self):
+    def create_searchindex(self, postgres):
+        npyfilespath = self.npy_path
+        with open(self.code2emb_path / 'nodoc_vecs.npy', 'wb') as f_handle:
+            # os.chdir(npyfilespath)
+            first = False
+            dataArray = None
+            # os.chdir(npyfilespath)
+            for npfile in glob.glob("data/npy/*"):
+                # Find the path of the file
+                filepath = os.path.join("", npfile)
+                print("filepath = ", filepath)
+                temp = npfile.split('####')
+                temp = temp[0].split("\\")
+                print("temp=", temp)
+                fileid = temp[-1]
+                print("fileid = ", fileid)
+                matching_rows = postgres.check_fileid_exists(fileid)
+                if (matching_rows > 0):
+                    if first == False:
+                        # Load file
+                        dataArray = np.load(filepath)
+                        first = True
+                        print("this is first file")
+                    else:
+                        dataArray = np.concatenate((dataArray, np.load(filepath)), axis=0)
+                        print("this is not first file")
+            np.save(f_handle, dataArray)
         nodoc_vecs = np.load(self.code2emb_path / 'nodoc_vecs.npy')
+        print("nodoc_vecs.shape[0] = ", nodoc_vecs.shape[0])
         assert nodoc_vecs.shape[0] == self.ref_df.shape[0]
         search_index = create_nmslib_search_index(nodoc_vecs)
         search_index.saveIndex('search_index.nmslib')
@@ -102,12 +173,11 @@ class semantic:
         lang_model = torch.load(Path(self.base_dir + './data/lang_model/lang_model_cpu_v2.torch'),map_location='cpu')
         # lang_model = torch.load('lang_model_cpu_v2.torch', map_location='cpu')
         vocab = load_lm_vocab(Path(self.base_dir + './data/lang_model/vocab_v2.cls'))
-        embpath = Path(self.base_dir + './data/search/embeddings.var')
-        q2emb = Query2Emb(lang_model=lang_model,vocab=vocab)
-        return q2emb
+        # embpath = Path(self.base_dir + './data/search/embeddings.var')
+        self.q2emb = Query2Emb(lang_model=lang_model,vocab=vocab)
 
-    def search_query(self, postgres, q2emb, str_search, k=2):
-        query2emb_func = q2emb.emb_mean
+    def search_query(self, postgres, str_search, k=2):
+        query2emb_func = self.q2emb.emb_mean
         search_index = nmslib.init(method='hnsw', space='cosinesimil')
         search_index.loadIndex('search_index.nmslib')
         query = query2emb_func(str_search)

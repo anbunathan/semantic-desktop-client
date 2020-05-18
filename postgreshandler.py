@@ -43,7 +43,8 @@ class postgressql:
                 file_id SERIAL PRIMARY KEY,
                 directory_path TEXT NOT NULL,
                 file_name TEXT NOT NULL,
-                file_extension VARCHAR(5) NOT NULL
+                file_extension VARCHAR(5) NOT NULL,
+                dir_id INTEGER NOT NULL
             )
             """,
             """
@@ -280,10 +281,10 @@ class postgressql:
             if conn is not None:
                 conn.close()
 
-    def insert_master(self, directory_path, file_name, file_extension):
+    def insert_master(self, directory_path, file_name, file_extension, directory_id):
         """ insert a new vendor into the vendors table """
-        sql = """INSERT INTO master(directory_path, file_name, file_extension)
-                 VALUES(%s, %s, %s) RETURNING file_id;"""
+        sql = """INSERT INTO master(directory_path, file_name, file_extension, dir_id)
+                 VALUES(%s, %s, %s, %s) RETURNING file_id;"""
         conn = None
         file_id = None
         try:
@@ -294,7 +295,7 @@ class postgressql:
             # create a new cursor
             cur = conn.cursor()
             # execute the INSERT statement
-            cur.execute(sql, (directory_path, file_name, file_extension))
+            cur.execute(sql, (directory_path, file_name, file_extension, directory_id))
             # get the generated id back
             file_id = cur.fetchone()[0]
             # commit the changes to the database
@@ -441,6 +442,25 @@ class postgressql:
                 conn.close()
         return matching_rows
 
+    def check_fileid_exists(self, file_id):
+        """ query data from the vendors table """
+        conn = None
+        fileid_exists = False
+        try:
+            params = config()
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+            fileid_exists = cur.execute("SELECT EXISTS(SELECT 1 FROM master WHERE file_id=%s);",(file_id, ))
+            matching_rows = cur.rowcount
+            print("The number of matching rows: ", matching_rows)
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+        return matching_rows
+
     def get_results(self):
         """ query parts from the parts table """
         conn = None
@@ -483,6 +503,37 @@ class postgressql:
             if conn is not None:
                 conn.close()
         return paras, locations, autotags, manualtags, distances, ranks, searchstrings
+
+    def get_paragraphs_fileid(self, file_id):
+        """ query parts from the parts table """
+        conn = None
+        paras = None
+        paraids = None
+        autotags = None
+        manualtags = None
+        try:
+            params = config()
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+            cur.execute("SELECT paragraph FROM paragraphs WHERE (file_id=%s) ORDER BY paragraph_id;",(file_id,))
+            paras = cur.fetchall()
+            print("The number of paragraphs: ", cur.rowcount)
+            cur.execute("SELECT paragraph_id FROM paragraphs WHERE (file_id=%s) ORDER BY paragraph_id;",(file_id,))
+            paraids = cur.fetchall()
+            print("The number of paragraph ids: ", cur.rowcount)
+            cur.execute("SELECT automatic_tag FROM paragraphs WHERE (file_id=%s) ORDER BY paragraph_id;",(file_id,))
+            autotags = cur.fetchall()
+            print("The number of autotags: ", cur.rowcount)
+            cur.execute("SELECT manual_tag FROM paragraphs WHERE (file_id=%s) ORDER BY paragraph_id;",(file_id,))
+            manualtags = cur.fetchall()
+            print("The number of manualtags: ", cur.rowcount)
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+        return paras, paraids, autotags, manualtags
 
     def get_paragraphs(self):
         """ query parts from the parts table """

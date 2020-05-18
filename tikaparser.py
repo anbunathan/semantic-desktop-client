@@ -8,6 +8,7 @@ import textwrap
 class tikaparser:
     directory = ""
     filename = ""
+    minimum_number_of_words = 5
     def __init__(sel):
         directory = ""
         filename = ""
@@ -17,6 +18,9 @@ class tikaparser:
         filepath = os.path.join(self.directory, self.filename)
         parsed = parser.from_file(filepath)
         text = parsed["content"]
+        chars_to_remove = ['.', '!', '?', '[', ']', '{', '}', '!', '@', '#', '$', '+', '%', '*', ':', '-', ',', '=',
+                           '/', '\'']
+        rx = '[' + re.escape(''.join(chars_to_remove)) + ']'
         text = re.sub('\d+', 'NUMBER', text)
         text = re.sub('NUMBER,NUMBER', '', text)
         text = re.sub('NUMBER.NUMBER', '', text)
@@ -25,10 +29,13 @@ class tikaparser:
         text = re.sub(r'\t+', '', text)
         text = re.sub(r'^$\n+', '', text, flags=re.MULTILINE)
         text = re.sub("[!@#$+%*:()'-]", '', text)
+        text = re.sub(rx, '', text)
         text = os.linesep.join([s for s in text.splitlines() if s])
         text = "\n".join(list(OrderedDict.fromkeys(text.split("\n"))))
         text = re.sub('(?m)^.{0,50}\n','',text)
         paragraphs = text.split('\n')
+        paragraphs = [item for item in paragraphs if len(re.findall(r'\w+', item)) >
+                      self.minimum_number_of_words]
         return paragraphs
 
     def parsePDF (self):
@@ -40,6 +47,9 @@ class tikaparser:
         safe_text = str(safe_text).replace("\n", "").replace("\\", "$$$$")
         safe_text = safe_text.replace('$$$$n', '').replace("b\'", '')
         text = safe_text
+        chars_to_remove = ['.', '!', '?', '[', ']', '{', '}', '!', '@', '#', '$', '+', '%', '*', ':', '-', ',', '=',
+                           '/', '\'']
+        rx = '[' + re.escape(''.join(chars_to_remove)) + ']'
         text = re.sub('\d+', 'NUMBER', text)
         text = re.sub('NUMBER,NUMBER', '', text)
         text = re.sub('NUMBER.NUMBER', '', text)
@@ -48,16 +58,23 @@ class tikaparser:
         text = re.sub(r'\t+', '', text)
         text = re.sub(r'^$\n+', '', text, flags=re.MULTILINE)
         text = re.sub("[!@#$+%*:()'-]", '', text)
+        text = re.sub(rx, '', text)
         text = os.linesep.join([s for s in text.splitlines() if s])
         text = "\n".join(list(OrderedDict.fromkeys(text.split("\n"))))
         text = re.sub('(?m)^.{0,50}\n', '', text)
         paragraphs = re.split(r'\s{3,}', text)
+        paragraphs = [item for item in paragraphs if len(re.findall(r'\w+', item)) >
+                      self.minimum_number_of_words]
         return paragraphs
 
     def parsePPT (self):
         filepath = os.path.join(self.directory, self.filename)
         parsed = parser.from_file(filepath)
         text = parsed["content"]
+        chars_to_remove = ['.', '!', '?', '[', ']', '{', '}', '!', '@', '#', '$', '+', '%', '*', ':', '-', ',', '=',
+                           '/', '\'']
+        rx = '[' + re.escape(''.join(chars_to_remove)) + ']'
+
         text = re.sub('\d+', 'NUMBER', text)
         text = re.sub('NUMBER,NUMBER', '', text)
         text = re.sub('NUMBER.NUMBER', '', text)
@@ -66,16 +83,23 @@ class tikaparser:
         text = re.sub(r'\t+', '', text)
         text = re.sub(r'^$\n+', '', text, flags=re.MULTILINE)
         text = re.sub("[!@#$+%*:()'-]", '', text)
+        text = re.sub(rx, '', text)
         text = os.linesep.join([s for s in text.splitlines() if s])
         text = "\n".join(list(OrderedDict.fromkeys(text.split("\n"))))
         text = re.sub('(?m)^.{0,50}\n', '', text)
         paragraphs = text.split('\n')
+        paragraphs = [item for item in paragraphs if len(re.findall(r'\w+', item)) >
+                      self.minimum_number_of_words]
         return paragraphs
 
     def parseCSV (self):
         filepath = os.path.join(self.directory, self.filename)
         parsed = parser.from_file(filepath)
         text = parsed["content"]
+        chars_to_remove = ['.', '!', '?', '[', ']', '{', '}', '!', '@', '#', '$', '+', '%', '*', ':', '-', ',', '=',
+                           '/', '\'']
+        rx = '[' + re.escape(''.join(chars_to_remove)) + ']'
+
         text = re.sub('\d+', 'NUMBER', text)
         text = re.sub('NUMBER,NUMBER', '', text)
         text = re.sub('NUMBER.NUMBER', '', text)
@@ -84,16 +108,23 @@ class tikaparser:
         text = re.sub(r'\t+', '', text)
         text = re.sub(r'^$\n+', '', text, flags=re.MULTILINE)
         text = re.sub("[!@#$+%*:()'-]", '', text)
+        text = re.sub(rx, '', text)
         text = os.linesep.join([s for s in text.splitlines() if s])
         text = "\n".join(list(OrderedDict.fromkeys(text.split("\n"))))
         text = re.sub('(?m)^.{0,50}\n', '', text)
         paragraphs = text.split('\n')
+        paragraphs = [item for item in paragraphs if len(re.findall(r'\w+', item)) >
+                      self.minimum_number_of_words]
         return paragraphs
 
     def parseXLS (self):
         filepath = os.path.join(self.directory, self.filename)
         parsed = parser.from_file(filepath)
         text = parsed["content"]
+        chars_to_remove = ['.', '!', '?', '[', ']', '{', '}', '!', '@', '#', '$', '+', '%', '*', ':', '-', ',', '=',
+                           '/', '\'']
+        rx = '[' + re.escape(''.join(chars_to_remove)) + ']'
+
         text = re.sub('\d+', 'NUMBER', text)
         text = re.sub('NUMBER,NUMBER', '', text)
         text = re.sub('NUMBER.NUMBER', '', text)
@@ -102,10 +133,13 @@ class tikaparser:
         text = re.sub(r'\t+', '', text)
         text = re.sub(r'^$\n+', '', text, flags=re.MULTILINE)
         text = re.sub("[!@#$+%*:()'-]", '', text)
+        text = re.sub(rx, '', text)
         text = os.linesep.join([s for s in text.splitlines() if s])
         text = "\n".join(list(OrderedDict.fromkeys(text.split("\n"))))
         text = re.sub('(?m)^.{0,20}\n', '', text)
         paragraphs = text.split('\n')
+        paragraphs = [item for item in paragraphs if len(re.findall(r'\w+', item)) >
+                      self.minimum_number_of_words]
         return paragraphs
 
     def parse (self, directory, filename):

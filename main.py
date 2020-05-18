@@ -8,6 +8,7 @@ import time
 from os import listdir
 from os.path import isfile, join
 import sys
+import re
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'the quick brown fox jumps over the lazy   dog'
@@ -144,7 +145,7 @@ def updatemanualtag(uuid):
 
 @app.route('/search/query/<uuid>', methods=['GET', 'POST'])
 def query(uuid):
-    global q2emb
+    # global q2emb
     if request.method == 'POST':
         content = request.json
         print ("search string = ", content['todo_description'])
@@ -154,8 +155,8 @@ def query(uuid):
         # json_object = json_response({})
         json_object = JFY({})
         resultset=None
-        if q2emb!=None:
-            json_result = search.search_query(postgres, q2emb, search_string, 10)
+        if search.q2emb!=None:
+            json_result = search.search_query(postgres, search_string, 10)
             # json_result = json.dumps(json_result)
             json_object = JFY({"items":json_result})
             print("json_results = ",json_object)
@@ -173,10 +174,97 @@ def query(uuid):
 # def json_response(payload, status=200):
 #  return (json.dumps(payload), status, {'content-type': 'application/json'})
 
+# @app.route('/search/setenv/<uuid>', methods=['GET', 'POST'])
+# #@cross_origin()
+# def setenv(uuid):
+#     # global q2emb
+#     print("You are getting environment setup request")
+#     content = request.json
+#     print("content = ", content)
+#     print("content = ", len(content))
+#     base_dir = ''
+#     data_path = Path(base_dir + './data/processed_data/')
+#     directory_list = []
+#     inputtype_list = []
+#     directoryid_list = []
+#     for item in content:
+#         print(item['props']['directory']['directory'])
+#         directory = item['props']['directory']['directory']
+#         inputtype = item['props']['directory']['inputtype']
+#         directoryid = item['props']['directory']['directoryid']
+#         print("directory  = ", directory)
+#         print("inputtype = ", inputtype)
+#         print("directoryid = ", directoryid)
+#         directory_list.append(directory[0])
+#         inputtype_list.append(inputtype[0])
+#         directoryid_list.append(directoryid[0])
+#     print("directory list = ", directory_list)
+#     print("inputtype_list = ", inputtype_list)
+#     print("directoryid_list = ", directoryid_list)
+#     try:
+#         idx = 0
+#         for directory in directory_list:
+#             print("directory = ", directory)
+#             if (inputtype_list[idx] == 'Directory'):
+#                 files = [f for f in listdir(directory) if isfile(join(directory, f))]
+#                 print("files", files)
+#                 for filename in files:
+#                     print("file = ", filename)
+#                     matching_rows = postgres.get_fileinfo(directory, filename)
+#                     print("matching rows", matching_rows)
+#                     if matching_rows == 0:
+#                         filepath = os.path.join(directory, filename)
+#                         file, file_extension = os.path.splitext(filepath)
+#                         print(file_extension)
+#                         directory_id = directoryid_list[idx]
+#                         if file_extension in [".doc", ".docx", ".csv", ".xls", ".xlsx", ".ppt", ".pptx", ".pdf"]:
+#                             print("File type is supported")
+#                             paragraphs = parser.parse(directory, filename)
+#                             file_id = postgres.insert_master(directory, filename, file_extension, directory_id)
+#                             postgres.insert_paragraph_list(file_id, paragraphs)
+#                             print("file_id = ", file_id)
+#             else:
+#                 print("Directory = %s is of type 'SQLfile'" % directory)
+#             idx = idx+1
+#         paras, filepaths, paraids, autotags, manualtags = postgres.get_paragraphs()
+#         with open(data_path / 'without_docstrings.function', 'w', encoding='utf-8') as f:
+#             for item in paras:
+#                 item = re.sub("\n", "", str(item))
+#                 f.write("%s\n" % item)
+#         with open(data_path / 'without_docstrings.paraids', 'w', encoding='utf-8') as f:
+#             for item in paraids:
+#                 f.write("%s\n" % item)
+#         with open(data_path / 'without_docstrings.lineage', 'w', encoding='utf-8') as f:
+#             for item in filepaths:
+#                 f.write("%s\n" % item)
+#         with open(data_path / 'without_docstrings.manualtags', 'w', encoding='utf-8') as f:
+#             for item in manualtags:
+#                 f.write("%s\n" % item)
+#         print("without_docstrings files are created")
+#         search.create_vector()
+#         print("vectors are created")
+#         search.create_autotag(postgres)
+#         print("Autotags are created")
+#         search.create_refdf()
+#         print("Ref_dfs are created")
+#         search.create_searchindex()
+#         print("Searchindexs are created")
+#         # q2emb = search.search_engine()
+#         print("Search Environment is Set")
+#         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+#     except Exception as e:
+#         print("Error in set environement = ", e)
+#         # print(sys.exc_value)
+#         response, status = search.unexpected_error('Error in set environement')
+#         return response, status
+#     finally:
+#         print("Exit from set environment")
+#     # return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+
 @app.route('/search/setenv/<uuid>', methods=['GET', 'POST'])
 #@cross_origin()
 def setenv(uuid):
-    global q2emb
+    # global q2emb
     print("You are getting environment setup request")
     content = request.json
     print("content = ", content)
@@ -215,38 +303,53 @@ def setenv(uuid):
                         filepath = os.path.join(directory, filename)
                         file, file_extension = os.path.splitext(filepath)
                         print(file_extension)
+                        directory_id = directoryid_list[idx]
                         if file_extension in [".doc", ".docx", ".csv", ".xls", ".xlsx", ".ppt", ".pptx", ".pdf"]:
                             print("File type is supported")
                             paragraphs = parser.parse(directory, filename)
-                            file_id = postgres.insert_master(directory, filename, file_extension)
-                            postgres.insert_paragraph_list(file_id, paragraphs)
+                            file_id = postgres.insert_master(directory, filename, file_extension, directory_id)
                             print("file_id = ", file_id)
+                            size_para = len(paragraphs)
+                            print("size of paragraphs = ", size_para)
+                            if size_para==0:
+                                continue
+                            postgres.insert_paragraph_list(file_id, paragraphs)
+                            search.create_vector(postgres, file_id)
+                            print("vectors are created")
+                            search.create_autotag(postgres, file_id)
+                            print("Autotags are created")
+
             else:
                 print("Directory = %s is of type 'SQLfile'" % directory)
             idx = idx+1
         paras, filepaths, paraids, autotags, manualtags = postgres.get_paragraphs()
+        print("paraids = ", paraids)
         with open(data_path / 'without_docstrings.function', 'w', encoding='utf-8') as f:
             for item in paras:
-                f.write("%s" % item)
+                item = re.sub("\n", "", str(item))
+                f.write("%s\n" % item)
         with open(data_path / 'without_docstrings.paraids', 'w', encoding='utf-8') as f:
             for item in paraids:
                 f.write("%s\n" % item)
         with open(data_path / 'without_docstrings.lineage', 'w', encoding='utf-8') as f:
             for item in filepaths:
                 f.write("%s\n" % item)
+        with open(data_path / 'without_docstrings.autotag', 'w', encoding='utf-8') as f:
+            for item in autotags:
+                f.write("%s\n" % item)
         with open(data_path / 'without_docstrings.manualtags', 'w', encoding='utf-8') as f:
             for item in manualtags:
                 f.write("%s\n" % item)
         print("without_docstrings files are created")
-        search.create_vector()
-        print("vectors are created")
-        search.create_autotag(postgres)
-        print("Autotags are created")
+        # search.create_vector()
+        # print("vectors are created")
+        # search.create_autotag(postgres)
+        # print("Autotags are created")
         search.create_refdf()
         print("Ref_dfs are created")
-        search.create_searchindex()
+        search.create_searchindex(postgres)
         print("Searchindexs are created")
-        q2emb = search.search_engine()
+        # q2emb = search.search_engine()
         print("Search Environment is Set")
         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
     except Exception as e:
@@ -254,17 +357,16 @@ def setenv(uuid):
         # print(sys.exc_value)
         response, status = search.unexpected_error('Error in set environement')
         return response, status
-
     finally:
         print("Exit from set environment")
     # return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
 
 
 if __name__ == "__main__":
+    # global q2emb
     search = semantic()
     postgres = postgressql()
-    parser = tikaparser()
-    # postgres.connect()
-    #execute DROP TABLE paragraphs; from sql shell if schema is changed
     postgres.create_tables()
+    parser = tikaparser()
+    search.search_engine()
     app.run(debug=True)

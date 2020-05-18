@@ -297,7 +297,7 @@ class Seq2Seq_Inference(object):
 
     def predict(self,
                 raw_input_text,
-                max_len=None):
+                max_len=5):
         """
         Use the seq2seq model to generate a output given the input.
 
@@ -403,13 +403,13 @@ class Seq2Seq_Inference(object):
             emb, gen_title = self.predict(item)
             auto_tag.append(gen_title)
 
-        demo_list = np.random.randint(low=1, high=len(input_text), size=n)
-        for i in demo_list:
-            self.print_example(i,
-                               input_text=input_text[i],
-                               output_text=output_text[i],
-                               url=url[i],
-                               threshold=threshold)
+        # demo_list = np.random.randint(low=1, high=len(input_text), size=n)
+        # for i in demo_list:
+        #     self.print_example(i,
+        #                        input_text=input_text[i],
+        #                        output_text=output_text[i],
+        #                        url=url[i],
+        #                        threshold=threshold)
         return auto_tag
 
     def evaluate_model(self, input_strings, output_strings, max_len):

@@ -4,8 +4,10 @@
     <list default="true" id="bba1e4b5-9f2c-449e-ad58-c855d7676f76" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/postgreshandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/postgreshandler.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/search_index.nmslib" beforeDir="false" afterPath="$PROJECT_DIR$/search_index.nmslib" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/semanticsearch.py" beforeDir="false" afterPath="$PROJECT_DIR$/semanticsearch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/seq2seq_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/seq2seq_utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tikaparser.py" beforeDir="false" afterPath="$PROJECT_DIR$/tikaparser.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -27,30 +29,32 @@
           <entry key="project.open.time.30" value="1" />
           <entry key="project.open.time.31" value="1" />
           <entry key="project.open.time.32" value="1" />
+          <entry key="project.open.time.34" value="1" />
           <entry key="project.open.time.35" value="2" />
           <entry key="project.open.time.36" value="1" />
           <entry key="project.open.time.4" value="2" />
           <entry key="project.open.time.40" value="1" />
           <entry key="project.open.time.41" value="1" />
+          <entry key="project.open.time.42" value="1" />
           <entry key="project.open.time.46" value="1" />
           <entry key="project.open.time.56" value="1" />
           <entry key="project.open.time.63" value="1" />
-          <entry key="project.opened" value="19" />
+          <entry key="project.opened" value="21" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="gitignore" value="1" />
-          <entry key="ini" value="1" />
+          <entry key="ini" value="2" />
           <entry key="js" value="3" />
-          <entry key="py" value="7" />
+          <entry key="py" value="12" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="JavaScript" value="3" />
-          <entry key="PLAIN_TEXT" value="2" />
-          <entry key="Python" value="7" />
+          <entry key="PLAIN_TEXT" value="3" />
+          <entry key="Python" value="12" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
@@ -58,13 +62,13 @@
           <entry key="dummy" value="6" />
           <entry key="gitignore" value="5" />
           <entry key="ini" value="12" />
-          <entry key="py" value="7393" />
+          <entry key="py" value="8666" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="PLAIN_TEXT" value="23" />
-          <entry key="Python" value="7393" />
+          <entry key="Python" value="8666" />
         </counts>
       </usages-collector>
     </session>
@@ -74,8 +78,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="155">
-              <caret line="249" column="32" selection-start-line="249" selection-start-column="32" selection-end-line="249" selection-end-column="32" />
+            <state relative-caret-position="52">
+              <caret line="310" column="56" selection-start-line="310" selection-start-column="56" selection-end-line="310" selection-end-column="56" />
               <folding>
                 <element signature="e#0#32#0" expanded="true" />
               </folding>
@@ -84,13 +88,12 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/semanticsearch.py">
+        <entry file="file://$PROJECT_DIR$/sample.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1796">
-              <caret line="38" column="41" selection-start-line="38" selection-start-column="41" selection-end-line="38" selection-end-column="41" />
+            <state relative-caret-position="177">
+              <caret line="50" column="35" selection-start-line="50" selection-start-column="35" selection-end-line="50" selection-end-column="35" />
               <folding>
-                <element signature="e#0#25#0" expanded="true" />
-                <marker date="1589682392145" expanded="true" signature="901:910" ph="..." />
+                <element signature="e#0#9#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -99,8 +102,11 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lang_model_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret column="24" selection-start-column="24" selection-end-column="24" />
+            <state relative-caret-position="300">
+              <caret line="23" column="17" selection-start-line="23" selection-start-column="17" selection-end-line="23" selection-end-column="17" />
+              <folding>
+                <element signature="e#0#24#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -108,11 +114,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/seq2seq_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="7980">
-              <caret line="412" column="23" selection-start-line="412" selection-start-column="23" selection-end-line="412" selection-end-column="23" />
-              <folding>
-                <element signature="e#0#36#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="180">
+              <caret line="9" column="11" selection-start-line="9" selection-start-column="11" selection-end-line="9" selection-end-column="11" />
             </state>
           </provider>
         </entry>
@@ -120,11 +123,12 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/postgreshandler.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="85">
-              <caret line="282" column="21" selection-start-line="282" selection-start-column="8" selection-end-line="282" selection-end-column="21" />
+            <state relative-caret-position="270">
+              <caret line="461" column="28" selection-start-line="461" selection-start-column="28" selection-end-line="461" selection-end-column="28" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
-                <marker date="1589594471948" expanded="true" signature="10530:10539" ph="..." />
+                <marker date="1589798078529" expanded="true" signature="10585:10594" ph="..." />
+                <marker date="1589798078529" expanded="true" signature="16895:17556" ph="..." />
               </folding>
             </state>
           </provider>
@@ -133,13 +137,36 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tikaparser.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-900">
-              <caret line="9" column="17" selection-start-line="9" selection-start-column="17" selection-end-line="9" selection-end-column="17" />
+            <state relative-caret-position="1820">
+              <caret line="91" column="50" selection-start-line="91" selection-start-column="50" selection-end-line="91" selection-end-column="50" />
               <folding>
                 <element signature="e#22#31#0" expanded="true" />
-                <marker date="1589680880321" expanded="true" signature="241:286" ph="..." />
-                <marker date="1589680880321" expanded="true" signature="306:315" ph="..." />
-                <marker date="1589680880321" expanded="true" signature="369:378" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/general_utils.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2360">
+              <caret line="127" column="25" selection-start-line="127" selection-start-column="19" selection-end-line="127" selection-end-column="25" />
+              <folding>
+                <element signature="e#0#24#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/semanticsearch.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="270">
+              <caret line="65" column="45" selection-start-line="65" selection-start-column="45" selection-end-line="65" selection-end-column="45" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+                <marker date="1589798992379" expanded="true" signature="1125:1668" ph="..." />
+                <marker date="1589798992379" expanded="true" signature="1698:1981" ph="..." />
               </folding>
             </state>
           </provider>
@@ -156,36 +183,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>emb_mean</find>
-      <find>nmslib_index</find>
-      <find>embpath</find>
-      <find>json</find>
-      <find>str_search</find>
-      <find>cross_origin</find>
-      <find>jsonify</find>
-      <find>insert_paragraph_list</find>
-      <find>update_paragraph</find>
-      <find>postgre</find>
-      <find>postgreshandler</find>
-      <find>create_tables</find>
-      <find>size of auto_tag</find>
-      <find>list</find>
-      <find>get_fileinfo</find>
-      <find>search_query</find>
-      <find>get_document_records</find>
-      <find>insert</find>
-      <find>get_paragraphs</find>
-      <find>get_manualtag</find>
-      <find>unexpected_error</find>
-      <find>code2emb_model</find>
-      <find>seq2seq_Model</find>
-      <find>load_model</find>
-      <find>response for get_directory_path</find>
-      <find>get_directory_path</find>
+      <find>default_max_len</find>
+      <find>padding_maxlen</find>
+      <find>dec_pp</find>
+      <find>decoder_preprocessor</find>
+      <find>max</find>
+      <find>infere</find>
+      <find>padd</find>
+      <find>Seq2Seq_Inference</find>
+      <find>padding</find>
+      <find>load_lm_vocab</find>
+      <find>dpickle</find>
+      <find>load_text_processor</find>
+      <find>transform_parallel</find>
+      <find>dillcreate_nmslib_search_index</find>
+      <find>shape</find>
       <find>insert_master</find>
-      <find>is of type 'SQLfile'</find>
-      <find>batch</find>
-      <find>create_vector</find>
+      <find>q2emb</find>
+      <find>get_paragraphs</find>
+      <find>nodoc_vecs</find>
+      <find>size of auto_tag</find>
+      <find>WHERE paragraph_id =</find>
+      <find>get</find>
+      <find>file_id</find>
+      <find>check</find>
+      <find>update_manualtag</find>
+      <find>code2emb_path</find>
+      <find>create_nmslib_search_index</find>
+      <find>aututag_df.shape[0]</find>
+      <find>no_docstring_funcs</find>
+      <find>The number of paragraphs</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -197,13 +224,14 @@
         <option value="$PROJECT_DIR$/tikaparserDOC.py" />
         <option value="$PROJECT_DIR$/database.ini" />
         <option value="$PROJECT_DIR$/semantic-trial.py" />
-        <option value="$PROJECT_DIR$/seq2seq_utils.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/lang_model_utils.py" />
+        <option value="$PROJECT_DIR$/seq2seq_utils.py" />
         <option value="$PROJECT_DIR$/postgreshandler.py" />
-        <option value="$PROJECT_DIR$/tikaparser.py" />
+        <option value="$PROJECT_DIR$/sample.py" />
         <option value="$PROJECT_DIR$/semanticsearch.py" />
         <option value="$PROJECT_DIR$/main.py" />
+        <option value="$PROJECT_DIR$/tikaparser.py" />
       </list>
     </option>
   </component>
@@ -231,6 +259,18 @@
               <item name="SemanticClient" type="b2602c69:ProjectViewProjectNode" />
               <item name="SemanticClient" type="462c0819:PsiDirectoryNode" />
               <item name="data" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="SemanticClient" type="b2602c69:ProjectViewProjectNode" />
+              <item name="SemanticClient" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+              <item name="code2emb" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="SemanticClient" type="b2602c69:ProjectViewProjectNode" />
+              <item name="SemanticClient" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+              <item name="npy" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -286,6 +326,27 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="sample" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="SemanticClient" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/sample.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="semantic-trial" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="SemanticClient" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -332,10 +393,12 @@
       <item itemvalue="Python.main" />
       <item itemvalue="Python.tikaparser" />
       <item itemvalue="Python.semantic-trial" />
+      <item itemvalue="Python.sample" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.sample" />
         <item itemvalue="Python.semantic-trial" />
         <item itemvalue="Python.tikaparser" />
       </list>
@@ -362,8 +425,8 @@
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info active="true" anchor="bottom" id="Find" order="1" visible="true" weight="0.32850242" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.37037036" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32850242" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.34299517" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -409,72 +472,93 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lang_model_utils.py">
+    <entry file="file://$PROJECT_DIR$/config.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="24" selection-start-column="24" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/seq2seq_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7980">
-          <caret line="412" column="23" selection-start-line="412" selection-start-column="23" selection-end-line="412" selection-end-column="23" />
-          <folding>
-            <element signature="e#0#36#0" expanded="true" />
-          </folding>
-        </state>
+        <state relative-caret-position="-160" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/database.ini">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="100">
-          <caret line="5" column="6" selection-start-line="5" selection-end-line="5" selection-end-column="22" />
+          <caret line="5" column="18" selection-start-line="5" selection-end-line="5" selection-end-column="22" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/config.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/postgreshandler.py">
+    <entry file="file://$PROJECT_DIR$/lang_model_utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="282" column="21" selection-start-line="282" selection-start-column="8" selection-end-line="282" selection-end-column="21" />
+        <state relative-caret-position="300">
+          <caret line="23" column="17" selection-start-line="23" selection-start-column="17" selection-end-line="23" selection-end-column="17" />
           <folding>
-            <element signature="e#0#15#0" expanded="true" />
-            <marker date="1589594471948" expanded="true" signature="10530:10539" ph="..." />
+            <element signature="e#0#24#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tikaparser.py">
+    <entry file="file://$PROJECT_DIR$/seq2seq_utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-900">
-          <caret line="9" column="17" selection-start-line="9" selection-start-column="17" selection-end-line="9" selection-end-column="17" />
+        <state relative-caret-position="180">
+          <caret line="9" column="11" selection-start-line="9" selection-start-column="11" selection-end-line="9" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/general_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2360">
+          <caret line="127" column="25" selection-start-line="127" selection-start-column="19" selection-end-line="127" selection-end-column="25" />
           <folding>
-            <element signature="e#22#31#0" expanded="true" />
-            <marker date="1589680880321" expanded="true" signature="241:286" ph="..." />
-            <marker date="1589680880321" expanded="true" signature="306:315" ph="..." />
-            <marker date="1589680880321" expanded="true" signature="369:378" ph="..." />
+            <element signature="e#0#24#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/postgreshandler.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="461" column="28" selection-start-line="461" selection-start-column="28" selection-end-line="461" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+            <marker date="1589798078529" expanded="true" signature="10585:10594" ph="..." />
+            <marker date="1589798078529" expanded="true" signature="16895:17556" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sample.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="177">
+          <caret line="50" column="35" selection-start-line="50" selection-start-column="35" selection-end-line="50" selection-end-column="35" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/semanticsearch.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1796">
-          <caret line="38" column="41" selection-start-line="38" selection-start-column="41" selection-end-line="38" selection-end-column="41" />
+        <state relative-caret-position="270">
+          <caret line="65" column="45" selection-start-line="65" selection-start-column="45" selection-end-line="65" selection-end-column="45" />
           <folding>
-            <element signature="e#0#25#0" expanded="true" />
-            <marker date="1589682392145" expanded="true" signature="901:910" ph="..." />
+            <element signature="e#0#9#0" expanded="true" />
+            <marker date="1589798992379" expanded="true" signature="1125:1668" ph="..." />
+            <marker date="1589798992379" expanded="true" signature="1698:1981" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tikaparser.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1820">
+          <caret line="91" column="50" selection-start-line="91" selection-start-column="50" selection-end-line="91" selection-end-column="50" />
+          <folding>
+            <element signature="e#22#31#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="155">
-          <caret line="249" column="32" selection-start-line="249" selection-start-column="32" selection-end-line="249" selection-end-column="32" />
+        <state relative-caret-position="52">
+          <caret line="310" column="56" selection-start-line="310" selection-start-column="56" selection-end-line="310" selection-end-column="56" />
           <folding>
             <element signature="e#0#32#0" expanded="true" />
           </folding>
