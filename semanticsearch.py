@@ -146,7 +146,10 @@ class semantic:
                 filepath = os.path.join("", npfile)
                 print("filepath = ", filepath)
                 temp = npfile.split('####')
-                temp = temp[0].split("\\")
+                if ("\\" in temp[0]):
+                    temp = temp[0].split("\\")
+                elif ("/" in temp[0]):
+                    temp = temp[0].split("/")
                 print("temp=", temp)
                 fileid = temp[-1]
                 print("fileid = ", fileid)

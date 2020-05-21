@@ -28,7 +28,10 @@ def create_searchindex(postgres):
             filepath = os.path.join("", npfile)
             print("filepath = ", filepath)
             temp = npfile.split('####')
-            temp = temp[0].split("\\")
+            if ("\\" in temp):
+                temp = temp[0].split("\\")
+            elif ("/" in temp):
+                temp = temp[0].split("/")
             print("temp=", temp)
             fileid = temp[-1]
             print("fileid = ", fileid)

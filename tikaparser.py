@@ -3,7 +3,6 @@ import os
 import re
 from collections import OrderedDict
 from tika import parser
-import textwrap
 
 class tikaparser:
     directory = ""
