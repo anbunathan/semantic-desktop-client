@@ -3,6 +3,7 @@ import os
 import re
 from collections import OrderedDict
 from tika import parser
+from tika import config
 
 class tikaparser:
     directory = ""
@@ -12,6 +13,12 @@ class tikaparser:
         directory = ""
         filename = ""
         print("parser object created")
+
+    def getConfig(self):
+        print(config.getParsers())
+        print(config.getMimeTypes())
+        print(config.getDetectors())
+        return config.getParsers()
 
     def parseDOC (self):
         filepath = os.path.join(self.directory, self.filename)

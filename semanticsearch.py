@@ -1,3 +1,4 @@
+
 import os
 import glob
 from os import path
@@ -37,6 +38,22 @@ class semantic:
     seq2seq_inf = None
     q2emb = None
 
+    def load_models(self):
+        K.clear_session()
+        seq2seq_Model = load_model(str(self.seq2seq_path / 'code_summary_seq2seq_model.h5'))
+        num_encoder_tokens, enc_pp = load_text_processor(self.seq2seq_path / 'py_code_proc_v2.dpkl')
+        num_decoder_tokens, dec_pp = load_text_processor(self.seq2seq_path / 'py_comment_proc_v2.dpkl')
+        self.seq2seq_inf = Seq2Seq_Inference(encoder_preprocessor=enc_pp,
+                                             decoder_preprocessor=dec_pp,
+                                             seq2seq_model=seq2seq_Model)
+        self.code2emb_model = load_model(str(self.code2emb_path / 'code2emb_model.hdf5'), custom_objects=None,
+                                         compile=False)
+        self.num_encoder_tokens_vector, self.enc_pp_vector = load_text_processor(
+            self.seq2seq_path / 'py_code_proc_v2.dpkl')
+
+    def clear_session(self):
+        K.clear_session()
+
     def load_seq2seq_model(self):
         K.clear_session()
         seq2seq_Model = load_model(str(self.seq2seq_path / 'code_summary_seq2seq_model.h5'))
@@ -46,11 +63,79 @@ class semantic:
                                         decoder_preprocessor=dec_pp,
                                         seq2seq_model=seq2seq_Model)
 
-
     def load_code2emb_model(self):
         K.clear_session()
         self.code2emb_model = load_model(str(self.code2emb_path / 'code2emb_model.hdf5'), custom_objects=None, compile=False)
         self.num_encoder_tokens_vector, self.enc_pp_vector = load_text_processor(self.seq2seq_path / 'py_code_proc_v2.dpkl')
+
+    def create_vector_trial(self, postgres, file_id):
+        # with open(self.data_path/'without_docstrings.function', 'r', encoding='utf-8') as f:
+        #     no_docstring_funcs = f.readlines()
+        paras, paraids, autotags, manualtags = postgres.get_paragraphs_fileid(file_id)
+        paras = [str(item) for item in paras]
+        no_docstring_funcs = paras
+        print("no_docstring_funcs = ", no_docstring_funcs)
+        print("Going to transform_parallel")
+        # encinp = self.enc_pp_vector.transform_parallel(no_docstring_funcs)
+        encinp = self.enc_pp_vector.transform(no_docstring_funcs)
+        # np.save(self.code2emb_path/'nodoc_encinp.npy', encinp)
+        # encinp = np.load(self.code2emb_path/'nodoc_encinp.npy')
+        print("Going to create the vector")
+        nodoc_vecs = self.code2emb_model.predict(encinp, batch_size=2000)
+        # make sure the number of output rows equal the number of input rows
+        assert nodoc_vecs.shape[0] == encinp.shape[0]
+        # np.save(self.code2emb_path/'nodoc_vecs.npy', nodoc_vecs)
+        npy_filename = str(file_id) + "####" + "nodoc_vecs.npy"
+        np.save(self.npy_path / npy_filename, nodoc_vecs)
+        print("Vector is created successfully")
+
+    def create_autotag_trial1(self, postgres, file_id):
+        paras, paraids, autotags, manualtags = postgres.get_paragraphs_fileid(file_id)
+        paras = [str(item) for item in paras]
+        no_docstring_funcs = paras
+        no_docstring_paraids = paraids
+        print("no_docstring_paraids = ", no_docstring_paraids)
+        print("size of paragraphs = ", len(no_docstring_funcs))
+        print("size of paraids = ", len(no_docstring_paraids))
+        demo_testdf = pd.DataFrame({'code': no_docstring_funcs, 'comment': '', 'ref': ''})
+        auto_tag = self.seq2seq_inf.demo_model_predictions(n=15, df=demo_testdf)
+        print("size of auto_tag = ", len(auto_tag))
+        with open(self.data_path/'without_docstrings.autotag', 'w', encoding='utf-8') as f:
+            index = 0
+            for item in auto_tag:
+                f.write("%s\n" % item)
+                paraid = no_docstring_paraids[index]
+                # paraid = paraid.strip()
+                updated_rows = postgres.update_autotag(paraid, item)
+                index=index+1
+        print("Autotag is created successfully")
+
+    def create_autotag_trial(self, postgres, file_id_list):
+        paras_list = []
+        paras_id_list = []
+        for file_id in file_id_list:
+            paras, paraids, autotags, manualtags = postgres.get_paragraphs_fileid(file_id)
+            paras = [str(item) for item in paras]
+            paras_list = paras_list + paras
+            paras_id_list = paras_id_list+paraids
+        no_docstring_funcs = paras_list
+        no_docstring_paraids = paras_id_list
+        print("no_docstring_funcs = ", no_docstring_funcs)
+        print("no_docstring_paraids = ", no_docstring_paraids)
+        print("size of paragraphs = ", len(no_docstring_funcs))
+        print("size of paraids = ", len(no_docstring_paraids))
+        demo_testdf = pd.DataFrame({'code': no_docstring_funcs, 'comment': '', 'ref': ''})
+        auto_tag = self.seq2seq_inf.demo_model_predictions(n=15, df=demo_testdf)
+        print("size of auto_tag = ", len(auto_tag))
+        with open(self.data_path/'without_docstrings.autotag', 'w', encoding='utf-8') as f:
+            index = 0
+            for item in auto_tag:
+                f.write("%s\n" % item)
+                paraid = no_docstring_paraids[index]
+                # paraid = paraid.strip()
+                updated_rows = postgres.update_autotag(paraid, item)
+                index=index+1
+        print("Autotag is created successfully")
 
     def create_vector(self, postgres, file_id):
         K.clear_session()
@@ -90,10 +175,6 @@ class semantic:
         self.seq2seq_inf = Seq2Seq_Inference(encoder_preprocessor=enc_pp,
                                              decoder_preprocessor=dec_pp,
                                              seq2seq_model=seq2seq_Model)
-        # with open(self.data_path/'without_docstrings.function', 'r', encoding='utf-8') as f:
-        #     no_docstring_funcs = f.readlines()
-        # with open(self.data_path / 'without_docstrings.paraids', 'r', encoding='utf-8') as f:
-        #     no_docstring_paraids = f.readlines()
         paras, paraids, autotags, manualtags = postgres.get_paragraphs_fileid(file_id)
         paras = [str(item) for item in paras]
         no_docstring_funcs = paras
@@ -146,6 +227,7 @@ class semantic:
                 filepath = os.path.join("", npfile)
                 print("filepath = ", filepath)
                 temp = npfile.split('####')
+                print("temp[0] = ", temp[0])
                 if ("\\" in temp[0]):
                     temp = temp[0].split("\\")
                 elif ("/" in temp[0]):
@@ -165,6 +247,7 @@ class semantic:
                         print("this is not first file")
             np.save(f_handle, dataArray)
         nodoc_vecs = np.load(self.code2emb_path / 'nodoc_vecs.npy')
+        print("self.ref_df.shape[0] = ", self.ref_df.shape[0])
         print("nodoc_vecs.shape[0] = ", nodoc_vecs.shape[0])
         assert nodoc_vecs.shape[0] == self.ref_df.shape[0]
         search_index = create_nmslib_search_index(nodoc_vecs)

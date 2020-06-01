@@ -201,8 +201,11 @@ def setenv(uuid):
     print("directoryid_list = ", directoryid_list)
     try:
         idx = 0
+        fileid_list = []
+        search.load_models()
         for directory in directory_list:
             print("directory = ", directory)
+            inputtype_list[idx] = 'Directory'
             if (inputtype_list[idx] == 'Directory'):
                 files = [f for f in listdir(directory) if isfile(join(directory, f))]
                 print("files", files)
@@ -210,6 +213,7 @@ def setenv(uuid):
                     print("file = ", filename)
                     matching_rows = postgres.get_fileinfo(directory, filename)
                     print("matching rows", matching_rows)
+                    matching_rows=0
                     if matching_rows == 0:
                         filepath = os.path.join(directory, filename)
                         file, file_extension = os.path.splitext(filepath)
@@ -225,14 +229,24 @@ def setenv(uuid):
                             if size_para==0:
                                 continue
                             postgres.insert_paragraph_list(file_id, paragraphs)
-                            search.create_vector(postgres, file_id)
+                            fileid_list.append(file_id)
+
+                            search.create_vector_trial(postgres, file_id)
                             print("vectors are created")
-                            search.create_autotag(postgres, file_id)
+                            search.create_autotag_trial1(postgres, file_id)
                             print("Autotags are created")
+                            # search.create_vector(postgres, file_id)
+                            # print("vectors are created")
+                            # search.create_autotag(postgres, file_id)
+                            # print("Autotags are created")
 
             else:
                 print("Directory = %s is of type 'SQLfile'" % directory)
             idx = idx+1
+        print("fileid_list = ", fileid_list)
+        # search.create_autotag_trial(postgres, fileid_list)
+        # print("Autotags are created")
+        search.clear_session()
         paras, filepaths, paraids, autotags, manualtags = postgres.get_paragraphs()
         print("paraids = ", paraids)
         with open(data_path / 'without_docstrings.function', 'w', encoding='utf-8') as f:
@@ -252,10 +266,6 @@ def setenv(uuid):
             for item in manualtags:
                 f.write("%s\n" % item)
         print("without_docstrings files are created")
-        # search.create_vector()
-        # print("vectors are created")
-        # search.create_autotag(postgres)
-        # print("Autotags are created")
         search.create_refdf()
         print("Ref_dfs are created")
         search.create_searchindex(postgres)
@@ -279,5 +289,6 @@ if __name__ == "__main__":
     postgres = postgressql()
     postgres.create_tables()
     parser = tikaparser()
+    config = parser.getConfig()
     search.search_engine()
     app.run(debug=True)
