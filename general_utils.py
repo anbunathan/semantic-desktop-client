@@ -126,6 +126,8 @@ def create_nmslib_search_index(numpy_vectors):
     """
 
     search_index = nmslib.init(method='hnsw', space='cosinesimil')
+    print("nmslib.init inside create_nmslib_search_index is done")
     search_index.addDataPointBatch(numpy_vectors)
+    print("addDataPointBatch inside create_nmslib_search_index is done")
     search_index.createIndex({'post': 2}, print_progress=True)
     return search_index

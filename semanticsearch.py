@@ -21,7 +21,7 @@ from seq2seq_utils import Seq2Seq_Inference
 import pandas as pd
 import json
 from keras import backend as K
-
+import re
 
 class semantic:
     base_dir = ''
@@ -68,6 +68,7 @@ class semantic:
         self.code2emb_model = load_model(str(self.code2emb_path / 'code2emb_model.hdf5'), custom_objects=None, compile=False)
         self.num_encoder_tokens_vector, self.enc_pp_vector = load_text_processor(self.seq2seq_path / 'py_code_proc_v2.dpkl')
 
+
     def create_vector_trial(self, postgres, file_id):
         # with open(self.data_path/'without_docstrings.function', 'r', encoding='utf-8') as f:
         #     no_docstring_funcs = f.readlines()
@@ -81,7 +82,7 @@ class semantic:
         # np.save(self.code2emb_path/'nodoc_encinp.npy', encinp)
         # encinp = np.load(self.code2emb_path/'nodoc_encinp.npy')
         print("Going to create the vector")
-        nodoc_vecs = self.code2emb_model.predict(encinp, batch_size=2000)
+        nodoc_vecs = self.code2emb_model.predict(encinp, batch_size=200)
         # make sure the number of output rows equal the number of input rows
         assert nodoc_vecs.shape[0] == encinp.shape[0]
         # np.save(self.code2emb_path/'nodoc_vecs.npy', nodoc_vecs)
@@ -98,6 +99,7 @@ class semantic:
         print("size of paragraphs = ", len(no_docstring_funcs))
         print("size of paraids = ", len(no_docstring_paraids))
         demo_testdf = pd.DataFrame({'code': no_docstring_funcs, 'comment': '', 'ref': ''})
+        demo_testdf.to_csv(self.data_path/'paragraphs.csv', index=False)
         auto_tag = self.seq2seq_inf.demo_model_predictions(n=15, df=demo_testdf)
         print("size of auto_tag = ", len(auto_tag))
         with open(self.data_path/'without_docstrings.autotag', 'w', encoding='utf-8') as f:
@@ -157,7 +159,7 @@ class semantic:
         # np.save(self.code2emb_path/'nodoc_encinp.npy', encinp)
         # encinp = np.load(self.code2emb_path/'nodoc_encinp.npy')
         print("Going to create the vector")
-        nodoc_vecs = self.code2emb_model.predict(encinp, batch_size=2000)
+        nodoc_vecs = self.code2emb_model.predict(encinp, batch_size=200)
         # make sure the number of output rows equal the number of input rows
         assert nodoc_vecs.shape[0] == encinp.shape[0]
         # np.save(self.code2emb_path/'nodoc_vecs.npy', nodoc_vecs)
@@ -214,6 +216,29 @@ class semantic:
         ref_df = pd.concat([url_df, code_df, aututag_df, manualtag_df], axis=1).reset_index(drop=True)
         self.ref_df = ref_df
         print(ref_df.head())
+
+    def create_searchindex_paras(self, paras):
+        paras = [str(item) for item in paras]
+        # paras = [item.strip('\r') for item in paras]
+        # chars_to_remove = ['\r', '.', '!', '?', '[', ']', '{', '}', '!', '@', '#', '$', '+', '%', '*', ':', '-', ',', '=',
+        #                    '/',  '\'', '\”', '\"']
+        # rx = '[' + re.escape(''.join(chars_to_remove)) + ']'
+        # paras = [re.sub(rx, '', item) for item in paras]
+        # paras = [re.sub("[!@#$+%*:()'-]", '', item) for item in paras]
+        # paras = [item.strip() for item in paras]
+        # paras = [str(item) for item in paras]
+        # paras = np.array(paras).astype(np.float32)
+        no_docstring_funcs = paras
+        encinp = self.enc_pp_vector.transform(no_docstring_funcs)
+        # pd.DataFrame(paras).to_csv("nmslib_paragraphs.csv")
+        # npy_filename = "nodoc_vecs.npy"
+        # np.save(npy_filename, paras)
+        # no_docstring_funcs = np.load(npy_filename)
+        print("no_docstring_funcs = ", no_docstring_funcs)
+        print("size of paragraphs = ", len(no_docstring_funcs))
+        search_index = create_nmslib_search_index(encinp)
+        search_index.saveIndex('search_index.nmslib')
+        print("SearchIndex is created for paras")
 
     def create_searchindex(self, postgres):
         npyfilespath = self.npy_path

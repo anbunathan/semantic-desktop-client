@@ -14,7 +14,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'the quick brown fox jumps over the lazy   dog'
 app.config['CORS_HEADERS'] = 'Content-Type'
 #Allow specific origin
-cors = CORS(app, resources={r"/search/*": {"origins": ["http://54.225.26.77", "http://localhost:3000"]}})
+cors = CORS(app, resources={r"/search/*": {"origins": ["https://digitran-semanticsearch.tk", "http://54.225.26.77", "http://localhost:3000"]}})
 q2emb = None
 
 @app.route('/search/deletedirectory/<uuid>', methods=['GET', 'POST'])
@@ -205,7 +205,7 @@ def setenv(uuid):
         search.load_models()
         for directory in directory_list:
             print("directory = ", directory)
-            inputtype_list[idx] = 'Directory'
+            #inputtype_list[idx] = 'Directory'
             if (inputtype_list[idx] == 'Directory'):
                 files = [f for f in listdir(directory) if isfile(join(directory, f))]
                 print("files", files)
@@ -213,7 +213,7 @@ def setenv(uuid):
                     print("file = ", filename)
                     matching_rows = postgres.get_fileinfo(directory, filename)
                     print("matching rows", matching_rows)
-                    matching_rows=0
+                    #matching_rows=0
                     if matching_rows == 0:
                         filepath = os.path.join(directory, filename)
                         file, file_extension = os.path.splitext(filepath)
@@ -268,9 +268,9 @@ def setenv(uuid):
         print("without_docstrings files are created")
         search.create_refdf()
         print("Ref_dfs are created")
-        search.create_searchindex(postgres)
+        #search.create_searchindex(postgres)
+        search.create_searchindex_paras(paras )
         print("Searchindexs are created")
-        # q2emb = search.search_engine()
         print("Search Environment is Set")
         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
     except Exception as e:
@@ -289,6 +289,15 @@ if __name__ == "__main__":
     postgres = postgressql()
     postgres.create_tables()
     parser = tikaparser()
+    count=0
+    while(count<1):
+        try:
+            directory = os.getcwd()
+            parsed = parser.parse(directory, 'myfile.txt')
+            count=count+1
+        except Exception as e:
+            print("Tika parser error = ", e)
+            continue
     config = parser.getConfig()
     search.search_engine()
     app.run(debug=True)
