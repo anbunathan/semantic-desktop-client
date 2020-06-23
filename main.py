@@ -207,7 +207,7 @@ def setenv(uuid):
             print("directory = ", directory)
             #inputtype_list[idx] = 'Directory'
             if (inputtype_list[idx] == 'Directory'):
-                files = [f for f in listdir(directory) if isfile(join(directory, f))]
+                files = [f for f in listdir(directory) if isfile(join(directory, f)) and '~$' not in f]
                 print("files", files)
                 for filename in files:
                     print("file = ", filename)
