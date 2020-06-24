@@ -3,7 +3,7 @@ import os
 import glob
 from os import path
 from flask import jsonify
-from keras.models import load_model
+from tensorflow.keras.models import load_model
 from pathlib import Path
 import numpy as np
 from sqlalchemy import JSON
@@ -20,7 +20,7 @@ from fastai import *
 from seq2seq_utils import Seq2Seq_Inference
 import pandas as pd
 import json
-from keras import backend as K
+from tensorflow.keras import backend as K
 import re
 
 class semantic:
@@ -40,14 +40,20 @@ class semantic:
 
     def load_models(self):
         K.clear_session()
+        print("Going to load 'code_summary_seq2seq_model.h5'")
         seq2seq_Model = load_model(str(self.seq2seq_path / 'code_summary_seq2seq_model.h5'))
+        print("Going to load 'py_code_proc_v2.dpkl'")
         num_encoder_tokens, enc_pp = load_text_processor(self.seq2seq_path / 'py_code_proc_v2.dpkl')
+        print("Going to load 'py_comment_proc_v2.dpkl'")
         num_decoder_tokens, dec_pp = load_text_processor(self.seq2seq_path / 'py_comment_proc_v2.dpkl')
+        print("Going to load 'Seq2Seq_Inference'")
         self.seq2seq_inf = Seq2Seq_Inference(encoder_preprocessor=enc_pp,
                                              decoder_preprocessor=dec_pp,
                                              seq2seq_model=seq2seq_Model)
+        print("Going to load 'code2emb_model.hdf5'")
         self.code2emb_model = load_model(str(self.code2emb_path / 'code2emb_model.hdf5'), custom_objects=None,
                                          compile=False)
+        print("Going to load 'py_code_proc_v2.dpkl'")
         self.num_encoder_tokens_vector, self.enc_pp_vector = load_text_processor(
             self.seq2seq_path / 'py_code_proc_v2.dpkl')
 

@@ -1,8 +1,8 @@
 from matplotlib import pyplot as plt
 import tensorflow as tf
-from keras import backend as K
-from keras.models import Model
-from keras.layers import Input, LSTM, GRU, Dense, Embedding, Bidirectional, BatchNormalization
+from tensorflow.keras import backend as K
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, LSTM, GRU, Dense, Embedding, Bidirectional, BatchNormalization
 from IPython.display import SVG, display
 from keras.utils.vis_utils import model_to_dot
 import logging
@@ -12,6 +12,7 @@ from annoy import AnnoyIndex
 from tqdm import tqdm, tqdm_notebook
 from random import random
 from nltk.translate.bleu_score import corpus_bleu
+import time
 
 
 def build_seq2seq_model(word_emb_dim,
@@ -399,10 +400,17 @@ class Seq2Seq_Inference(object):
         url = df[ref_col].tolist()
         input_size = len(input_text)
         auto_tag = []
-
+        loop_count=0
         for item in input_text:
+            start_time = time.time()
+            print("input item", item)
             emb, gen_title = self.predict(item)
+            print("prediction = ",gen_title)
             auto_tag.append(gen_title)
+            elapsed_time = time.time() - start_time
+            print("elapsed_time in seconds = ",elapsed_time)
+            loop_count = loop_count+1
+            print("loop_count = ", loop_count)
 
 
         return auto_tag
