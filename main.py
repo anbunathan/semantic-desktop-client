@@ -268,8 +268,8 @@ def setenv(uuid):
         print("without_docstrings files are created")
         search.create_refdf()
         print("Ref_dfs are created")
-        #search.create_searchindex(postgres)
-        search.create_searchindex_paras(paras )
+        search.create_searchindex(postgres)
+        # search.create_searchindex_paras(paras )
         print("Searchindexs are created")
         print("Search Environment is Set")
         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}

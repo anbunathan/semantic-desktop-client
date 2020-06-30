@@ -278,6 +278,7 @@ class semantic:
                         print("this is not first file")
             np.save(f_handle, dataArray)
         nodoc_vecs = np.load(self.code2emb_path / 'nodoc_vecs.npy')
+        np.savetxt(self.code2emb_path / 'nodoc_vecs_to_text.txt', nodoc_vecs, delimiter=' ')
         print("self.ref_df.shape[0] = ", self.ref_df.shape[0])
         print("nodoc_vecs.shape[0] = ", nodoc_vecs.shape[0])
         assert nodoc_vecs.shape[0] == self.ref_df.shape[0]
