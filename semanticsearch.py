@@ -299,14 +299,27 @@ class semantic:
         search_index = nmslib.init(method='hnsw', space='cosinesimil')
         search_index.loadIndex('search_index.nmslib')
         query = query2emb_func(str_search)
+        print("str_search = ",  str_search)
+        print("query = ", query)
         idxs, dists = search_index.knnQuery(query, k=k)
+        print("indexes before = ", idxs)
+        print("dists before = ", dists)
+        idxs[:] = idxs[::-1]
+        dists[:] = dists[::-1]
+        print("indexes after = ", idxs)
+        print("dists after = ", dists)
         length = len(dists)
         print("length of dists = ", length)
-        rankcounter=length+1
+        rankcounter = length + 1
         resultset = []
         json_results = []
-        # iterate over todos
-        for idx, dist in zip(sorted(idxs, reverse=True), sorted(dists, reverse=True)):
+        counter=0
+        for idx in idxs:
+            code = self.ref_df.iloc[idx].code
+            print("id = {} and paragraph = {}".format(idx, code))
+            dist = dists[counter]
+            counter = counter+1
+        # for idx, dist in zip(sorted(idxs, reverse=True), sorted(dists, reverse=True)):
             rankcounter = rankcounter-1
             code = self.ref_df.iloc[idx].code
             url = self.ref_df.iloc[idx].url
